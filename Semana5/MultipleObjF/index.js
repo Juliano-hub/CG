@@ -144,6 +144,12 @@ function main() {
  webglLessonsUI.setupSlider("#angle",  {value: rotationInRadians1 * 180 / Math.PI | 0, slide: updateAngle, max: 360});
  webglLessonsUI.setupSlider("#scaleX", {value: scale1[0], slide: updateScale(0), min: -5, max: 5, step: 0.01, precision: 2});
  webglLessonsUI.setupSlider("#scaleY", {value: scale1[1], slide: updateScale(1), min: -5, max: 5, step: 0.01, precision: 2});
+ // Setup a ui.
+ webglLessonsUI.setupSlider("#x2",      {value: translation[0], slide: updatePosition2(0), max: gl.canvas.width});
+ webglLessonsUI.setupSlider("#y2",      {value: translation[1], slide: updatePosition2(1), max: gl.canvas.height});
+ webglLessonsUI.setupSlider("#angle2",  {value: rotationInRadians * 180 / Math.PI | 0, slide: updateAngle2, max: 360});
+ webglLessonsUI.setupSlider("#scaleX2", {value: scale[0], slide: updateScale2(0), min: -5, max: 5, step: 0.01, precision: 2});
+ webglLessonsUI.setupSlider("#scaleY2", {value: scale[1], slide: updateScale2(1), min: -5, max: 5, step: 0.01, precision: 2});
 
 
  function updatePosition(index) {
@@ -152,7 +158,12 @@ function main() {
      drawScene();
    };
  }
-
+ function updatePosition2(index) {
+  return function(event, ui2) {
+    translation[index] = ui2.value;
+    drawScene();
+  };
+}
 
  function updateAngle(event, ui) {
    var angleInDegrees = 360 - ui.value;
@@ -160,6 +171,11 @@ function main() {
    drawScene();
  }
 
+ function updateAngle2(event, ui2) {
+  var angleInDegrees = 360 - ui2.value;
+  rotationInRadians = angleInDegrees * Math.PI / 180;
+  drawScene();
+}
 
  function updateScale(index) {
    return function(event, ui) {
@@ -168,6 +184,12 @@ function main() {
    };
  }
 
+ function updateScale2(index) {
+  return function(event, ui2) {
+    scale[index] = ui2.value;
+    drawScene();
+  };
+}
 
  // Draw the scene.
  function drawScene() {
