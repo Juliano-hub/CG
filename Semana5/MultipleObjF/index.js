@@ -103,7 +103,7 @@ function main() {
 
  // First let's make some variables
  // to hold the translation,
- var translation1 = [150+50, 100];
+ var translation1 = [150+100, 100];
  var rotationInRadians1 = 0;
  var scale1 = [1, 1];
  var color1 = [Math.random(), Math.random(), Math.random(), 1];
@@ -139,17 +139,17 @@ function main() {
  drawScene();
  gl.bindVertexArray(vao2);
  // Setup a ui.
- webglLessonsUI.setupSlider("#x",      {value: translation1[0], slide: updatePosition(0), max: gl.canvas.width });
- webglLessonsUI.setupSlider("#y",      {value: translation1[1], slide: updatePosition(1), max: gl.canvas.height});
- webglLessonsUI.setupSlider("#angle",  {value: rotationInRadians1 * 180 / Math.PI | 0, slide: updateAngle, max: 360});
- webglLessonsUI.setupSlider("#scaleX", {value: scale1[0], slide: updateScale(0), min: -5, max: 5, step: 0.01, precision: 2});
- webglLessonsUI.setupSlider("#scaleY", {value: scale1[1], slide: updateScale(1), min: -5, max: 5, step: 0.01, precision: 2});
+ webglLessonsUI.setupSlider("#x2",      {value: translation1[0], slide: updatePosition(0), max: gl.canvas.width });
+ webglLessonsUI.setupSlider("#y2",      {value: translation1[1], slide: updatePosition(1), max: gl.canvas.height});
+ webglLessonsUI.setupSlider("#angle2",  {value: rotationInRadians1 * 180 / Math.PI | 0, slide: updateAngle, max: 360});
+ webglLessonsUI.setupSlider("#scaleX2", {value: scale1[0], slide: updateScale(0), min: -5, max: 5, step: 0.01, precision: 2});
+ webglLessonsUI.setupSlider("#scaleY2", {value: scale1[1], slide: updateScale(1), min: -5, max: 5, step: 0.01, precision: 2});
  // Setup a ui.
- webglLessonsUI.setupSlider("#x2",      {value: translation[0], slide: updatePosition2(0), max: gl.canvas.width});
- webglLessonsUI.setupSlider("#y2",      {value: translation[1], slide: updatePosition2(1), max: gl.canvas.height});
- webglLessonsUI.setupSlider("#angle2",  {value: rotationInRadians * 180 / Math.PI | 0, slide: updateAngle2, max: 360});
- webglLessonsUI.setupSlider("#scaleX2", {value: scale[0], slide: updateScale2(0), min: -5, max: 5, step: 0.01, precision: 2});
- webglLessonsUI.setupSlider("#scaleY2", {value: scale[1], slide: updateScale2(1), min: -5, max: 5, step: 0.01, precision: 2});
+ webglLessonsUI.setupSlider("#x",      {value: translation[0], slide: updatePosition2(0), max: gl.canvas.width});
+ webglLessonsUI.setupSlider("#y",      {value: translation[1], slide: updatePosition2(1), max: gl.canvas.height});
+ webglLessonsUI.setupSlider("#angle",  {value: rotationInRadians * 180 / Math.PI | 0, slide: updateAngle2, max: 360});
+ webglLessonsUI.setupSlider("#scaleX", {value: scale[0], slide: updateScale2(0), min: -5, max: 5, step: 0.01, precision: 2});
+ webglLessonsUI.setupSlider("#scaleY", {value: scale[1], slide: updateScale2(1), min: -5, max: 5, step: 0.01, precision: 2});
 
 
  function updatePosition(index) {
