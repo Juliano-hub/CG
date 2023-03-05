@@ -137,6 +137,27 @@ function main() {
  webglLessonsUI.setupSlider("#scaleX", {value: scale[0], slide: updateScale2(0), min: -5, max: 5, step: 0.01, precision: 2});
  webglLessonsUI.setupSlider("#scaleY", {value: scale[1], slide: updateScale2(1), min: -5, max: 5, step: 0.01, precision: 2});
 
+ var then = 0;
+ requestAnimationFrame(drawAnimation);
+
+ function drawAnimation(now){
+  console.log('aq')
+  now *= 0.001
+
+  var deltaTime = now - then
+  then = now
+
+  translation1[0] += 10 * deltaTime
+  ui.value = translation1[0]
+
+  translation[1] += 10 * deltaTime
+  ui.value = translation1[0]
+
+  console.log(translation1[0])
+  
+  drawScene();
+  requestAnimationFrame(drawAnimation)
+ }
 
  function updatePosition(index) {
    return function(event, ui) {
