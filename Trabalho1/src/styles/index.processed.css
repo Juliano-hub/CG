@@ -6,4 +6,7 @@ canvas {
   width: 100vw;
   height: 100vh;
   display: block;
+  background-image: url("../utils/pexels-markus-winkler-13796745.jpg");
+  background-size: cover;
+  background-repeat: no-repeat;
 }

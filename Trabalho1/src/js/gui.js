@@ -16,7 +16,7 @@ const loadGUI = (gui, m4, u_world, cameraPosition, zNear, zFar, cameraTarget, cl
     }
   );
 
-  gui.add(cam, "y", -20, 20, 0.1).name("CAM y")
+  gui.add(cam, "y", -7.9, 7.9, 0.1).name("CAM y")
   .onChange(                
     function(value) {
       cameraTarget[1] = value;          
