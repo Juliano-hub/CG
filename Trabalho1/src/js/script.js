@@ -373,7 +373,7 @@ async function main() {
   const cameraTarget = [0, 0, 0];
   // figure out how far away to move the camera so we can likely
   // see the object.
-  const radius = m4.length(range) *1;
+  const radius = m4.length(range) *1.6;
 
   const cameraPosition = m4.addVectors(cameraTarget, [
     0,
@@ -403,7 +403,7 @@ async function main() {
 
   const gui = new dat.GUI();
 
-  loadGUI(gui, m4, u_world, cameraPosition, zNear, zFar);
+  loadGUI(gui, m4, u_world, cameraPosition, zNear, zFar, cameraTarget);
   
   function render() {
     //time *= 0.001

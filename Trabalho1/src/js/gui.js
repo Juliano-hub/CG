@@ -1,11 +1,29 @@
-const loadGUI = (gui, m4, u_world, cameraPosition, zNear, zFar) => {
+const loadGUI = (gui, m4, u_world, cameraPosition, zNear, zFar, cameraTarget, clientWidth) => {
   var parameters = {
-    Zoom: 0,
     Rotation: 0,
-    x: 0,
   };
 
-  gui.add(parameters, "Zoom", zNear+1, zFar, 0.5)
+  var cam = {
+    x: 0,
+    y: 0,
+    z: 0,
+  }
+
+  gui.add(cam, "x", -20, 20, 0.1).name("CAM x")
+  .onChange(                
+    function(value) {
+      cameraTarget[0] = value;          
+    }
+  );
+
+  gui.add(cam, "y", -20, 20, 0.1).name("CAM y")
+  .onChange(                
+    function(value) {
+      cameraTarget[1] = value;          
+    }
+  );
+
+  gui.add(cam, "z", zNear+1, zFar, 0.5).name("CAM z")
   .onChange(                
     function(value) {
       cameraPosition[2] = value;          
