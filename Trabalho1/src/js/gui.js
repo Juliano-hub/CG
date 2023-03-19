@@ -3,6 +3,8 @@
 const loadGUI = (cameraPosition, zNear, zFar) => {
   const gui = new dat.GUI();
 
+  var parameters = {Zoom:0};
+
   //console.log("Na func:")
   //console.log(cameraPosition[2])
   //console.log(cameraPosition)
@@ -12,9 +14,15 @@ const loadGUI = (cameraPosition, zNear, zFar) => {
   //console.log(m4)
   
   console.log("aq" + cameraPosition)
-  //console.log("aq" + sharedUniforms.u_view[14])
 
-  cameraPosition[2] = 16
+  cameraPosition[2] = 18
   console.log("aq" + cameraPosition)
-  //gui.add( sharedUniforms, "u_view[14]", zNear, zFar, 0.5)
+
+  gui.add(parameters, "Zoom", zNear, zFar, 0.5)
+  .onChange(                
+    function(value) {
+      cameraPosition[2] = value;          
+    }
+  );
+
 }

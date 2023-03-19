@@ -235,16 +235,13 @@ async function main() {
   in vec4 a_position;
   in vec3 a_normal;
   in vec4 a_color;
-
   uniform mat4 u_projection;
   uniform mat4 u_view;
   uniform mat4 u_world;
   uniform vec3 u_viewWorldPosition;
-
   out vec3 v_normal;
   out vec3 v_surfaceToView;
   out vec4 v_color;
-
   void main() {
     vec4 worldPosition = u_world * a_position;
     gl_Position = u_projection * u_view * worldPosition;
@@ -256,11 +253,9 @@ async function main() {
 
   const fs = `#version 300 es
   precision highp float;
-
   in vec3 v_normal;
   in vec3 v_surfaceToView;
   in vec4 v_color;
-
   uniform vec3 diffuse;
   uniform vec3 ambient;
   uniform vec3 emissive;
@@ -271,19 +266,14 @@ async function main() {
   uniform vec3 u_ambientLight;
   uniform mat4 u_rotationMatrix;
   out vec4 outColor;
-
   void main () {
     vec3 normal = normalize(v_normal);
-
     vec3 surfaceToViewDirection = normalize(v_surfaceToView);
     vec3 halfVector = normalize(u_lightDirection + surfaceToViewDirection);
-
     float fakeLight = dot(u_lightDirection, normal) * .5 + .5;
     float specularLight = clamp(dot(normal, halfVector), 0.0, 1.0);
-
     vec3 effectiveDiffuse = diffuse.rgb * v_color.rgb;
     float effectiveOpacity = v_color.a * opacity;
-
     outColor = vec4(
         emissive +
         ambient * u_ambientLight +
