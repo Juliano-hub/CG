@@ -4,9 +4,6 @@
 
 "use strict";
 
-// This is not a full .obj parser.
-// see http://paulbourke.net/dataformats/obj/
-
 function parseOBJ(text) {
   // because indices are base 1 let's just fill in the 0th data
   const objPositions = [[0, 0, 0]];
@@ -321,7 +318,7 @@ async function main() {
     } else {
       // there are no vertex colors so just use constant white
       // AQQ
-      data.color = { value: [0.7, 0.7, 0.9, 1] };
+      data.color = { value: [0.58, 0.58, 0.58, 1] };
     }
 
     // create a buffer for each array by calling
@@ -373,16 +370,13 @@ async function main() {
   const cameraTarget = [0, 0, 0];
   // figure out how far away to move the camera so we can likely
   // see the object.
-  // AQQ
-  const radius = m4.length(range) *1.2;
+  const radius = m4.length(range) *1;
 
   const cameraPosition = m4.addVectors(cameraTarget, [
     0,
     0,
     radius,
   ]);
-
-  console.log("No main: " + cameraPosition)
 
   // Set zNear and zFar to something hopefully appropriate
   // for the size of this object.
@@ -401,12 +395,15 @@ async function main() {
     0, 0, 0, 1,
   ];
 
-  //loadGUI(cameraPosition, zNear, zFar);
-  //loadGUI(m4, zNear, zFar);
-  loadGUI(cameraPosition, zNear, zFar);
+  let u_world = m4.yRotation(30);
+  u_world = m4.translate(u_world, ...objOffset);
+
+  const gui = new dat.GUI();
+
+  loadGUI(gui, m4, u_world, cameraPosition, zNear, zFar);
   
   function render(time) {
-    time *= 0.001;  // convert to seconds
+    time *= 0.001
 
     twgl.resizeCanvasToDisplaySize(gl.canvas);
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
@@ -437,8 +434,8 @@ async function main() {
 
     // compute the world matrix once since all parts
     // are at the same space.
-    let u_world = m4.yRotation(12);
-    u_world = m4.translate(u_world, ...objOffset);
+    u_world = m4.yRotation(time);
+    u_world = m4.translate(u_world, ...objOffset);  
 
     for (const {bufferInfo, vao, material} of parts) {
       // set the attributes for this part.

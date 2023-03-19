@@ -1,27 +1,22 @@
-//var cameraTarget = { radius: degToRad(20) };
+const loadGUI = (gui, m4, u_world, cameraPosition, zNear, zFar) => {
 
-const loadGUI = (cameraPosition, zNear, zFar) => {
-  const gui = new dat.GUI();
+  var parameters = {
+    Zoom: 0,
+    Rotation: 0,
+    x: 0,
+  };
 
-  var parameters = {Zoom:0};
-
-  //console.log("Na func:")
-  //console.log(cameraPosition[2])
-  //console.log(cameraPosition)
-  //const zNear = cameraTarget.radius / 100;
-  //const zFar = cameraTarget.radius * 3;
-  //console.log("Na func:" + cameraPosition[2])
-  //console.log(m4)
-  
-  console.log("aq" + cameraPosition)
-
-  cameraPosition[2] = 18
-  console.log("aq" + cameraPosition)
-
-  gui.add(parameters, "Zoom", zNear, zFar, 0.5)
+  gui.add(parameters, "Zoom", zNear+1, zFar, 0.5)
   .onChange(                
     function(value) {
       cameraPosition[2] = value;          
+    }
+  );
+
+  gui.add(parameters, "Rotation", 0, 360, 1)
+  .onChange(                
+    function(value) {
+      u_world = m4.yRotation(value);
     }
   );
 
