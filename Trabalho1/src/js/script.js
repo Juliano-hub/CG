@@ -369,7 +369,7 @@ async function main() {
         extents.min,
         m4.scaleVector(range, 0.5)),
       -1);
-  // AQQ
+
   const cameraTarget = [0, 0, 0];
   // figure out how far away to move the camera so we can likely
   // see the object.
@@ -403,6 +403,7 @@ async function main() {
 
   const gui = new dat.GUI();
 
+  //console.log(geometry)
   loadGUI(gui, m4, u_world, cameraPosition, zNear, zFar, cameraTarget);
   
   function render() {

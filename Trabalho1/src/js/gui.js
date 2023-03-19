@@ -9,6 +9,10 @@ const loadGUI = (gui, m4, u_world, cameraPosition, zNear, zFar, cameraTarget, cl
     z: 0,
   }
 
+  var palette = {
+    color1: [ 0, 128, 255, 0.3 ], // RGB with alpha
+  };
+
   gui.add(cam, "x", -20, 20, 0.1).name("CAM x")
   .onChange(                
     function(value) {
@@ -37,4 +41,10 @@ const loadGUI = (gui, m4, u_world, cameraPosition, zNear, zFar, cameraTarget, cl
     }
   );
 
+  gui.addColor(palette, 'color1')
+  .onChange(
+    function(value) {
+      u_world.setColor(value);
+    }
+  );
 }
