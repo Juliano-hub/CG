@@ -216,7 +216,10 @@ function parseMTL(text) {
   return materials;
 }
 
+var varRotation = 0
+
 async function main() {
+
   // Get A WebGL context
   /** @type {HTMLCanvasElement} */
   const canvas = document.querySelector("#canvas");
@@ -402,8 +405,8 @@ async function main() {
 
   loadGUI(gui, m4, u_world, cameraPosition, zNear, zFar);
   
-  function render(time) {
-    time *= 0.001
+  function render() {
+    //time *= 0.001
 
     twgl.resizeCanvasToDisplaySize(gl.canvas);
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
@@ -434,8 +437,9 @@ async function main() {
 
     // compute the world matrix once since all parts
     // are at the same space.
-    u_world = m4.yRotation(time);
-    u_world = m4.translate(u_world, ...objOffset);  
+    
+      u_world = m4.yRotation(varRotation);
+      u_world = m4.translate(u_world, ...objOffset);  
 
     for (const {bufferInfo, vao, material} of parts) {
       // set the attributes for this part.

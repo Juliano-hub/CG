@@ -1,5 +1,4 @@
 const loadGUI = (gui, m4, u_world, cameraPosition, zNear, zFar) => {
-
   var parameters = {
     Zoom: 0,
     Rotation: 0,
@@ -13,10 +12,10 @@ const loadGUI = (gui, m4, u_world, cameraPosition, zNear, zFar) => {
     }
   );
 
-  gui.add(parameters, "Rotation", 0, 360, 1)
+  gui.add(parameters, "Rotation", 0, 6.3, 0.1)
   .onChange(                
     function(value) {
-      u_world = m4.yRotation(value);
+      varRotation = value
     }
   );
 
