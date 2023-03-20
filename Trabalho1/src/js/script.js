@@ -305,8 +305,9 @@ async function main() {
     cameraTarget: cameraTarget,
     parts: parts,
   }
-
-  loadGUI(params, varRotation);
+  const newDiffuseColor = [];
+  
+  loadGUI(params, newDiffuseColor);
   
   function render() {
     //time *= 0.001
@@ -350,16 +351,16 @@ async function main() {
       // calls gl.uniform
       twgl.setUniforms(meshProgramInfo, {
         u_world,
-        u_color: color,
+        u_color: material.u_color,
         u_diffuse: material.u_diffuse,
       }, material);
       // calls gl.drawArrays or gl.drawElements
 
       //aqq
-      const newDiffuseColor = [1.0, 0.0, 0.0, 1.0]; // vermelho
       gl.useProgram(meshProgramInfo.program);
-      twgl.setUniforms(meshProgramInfo, { u_diffuse: newDiffuseColor });
-      //
+
+      twgl.setUniforms(meshProgramInfo, { u_diffuse: material.u_diffuse });
+      //twgl.setUniforms(meshProgramInfo, { u_diffuse: newDiffuseColor });
 
       twgl.drawBufferInfo(gl, bufferInfo);
     }

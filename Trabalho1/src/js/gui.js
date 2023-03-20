@@ -1,4 +1,4 @@
-const loadGUI = (params) => {
+const loadGUI = (params, newDiffuseColor) => {
 
   var parameters = {
     Rotation: 0,
@@ -46,13 +46,10 @@ const loadGUI = (params) => {
   params.gui.addColor(palette, 'Color')
   .onChange(
     function(value) {
-      for(var i = 0; i < 11; i++){
-        //console.log(colorVector[i])
-        //colorVector[i]= value;
-        //console.log(colorVector[i])
-        params.parts[i].bufferInfo.attribs.a_color = value;
-        //obj.geometries[i].data.color = value
-      }
+      newDiffuseColor[0] = value[0];
+      newDiffuseColor[1] = value[1];
+      newDiffuseColor[2] = value[2];
+      newDiffuseColor[3] = value[3];
     }
   );
 }
