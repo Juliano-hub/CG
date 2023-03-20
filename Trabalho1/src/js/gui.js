@@ -1,4 +1,4 @@
-const loadGUI = (gui, m4, u_world, cameraPosition, zNear, zFar, cameraTarget, parts) => {
+const loadGUI = (params) => {
 
   var parameters = {
     Rotation: 0,
@@ -14,28 +14,28 @@ const loadGUI = (gui, m4, u_world, cameraPosition, zNear, zFar, cameraTarget, pa
     Color: [ 0, 128, 255, 0.3 ], // RGB with alpha
   };
 
-  gui.add(cam, "x", -20, 20, 0.1).name("CAM x")
+  params.gui.add(cam, "x", -20, 20, 0.1).name("CAM x")
   .onChange(                
     function(value) {
-      cameraTarget[0] = value;          
+      params.cameraTarget[0] = value;          
     }
   );
 
-  gui.add(cam, "y", -7.9, 7.9, 0.1).name("CAM y")
+  params.gui.add(cam, "y", -7.9, 7.9, 0.1).name("CAM y")
   .onChange(                
     function(value) {
-      cameraTarget[1] = value;          
+      params.cameraTarget[1] = value;          
     }
   );
 
-  gui.add(cam, "z", zNear+1, zFar, 0.5).name("CAM z")
+  params.gui.add(cam, "z", params.zNear + 1, params.zFar, 0.5).name("CAM z")
   .onChange(                
     function(value) {
-      cameraPosition[2] = value;          
+      params.cameraPosition[2] = value;          
     }
   );
 
-  gui.add(parameters, "Rotation", 0, 6.3, 0.1)
+  params.gui.add(parameters, "Rotation", 0, 6.3, 0.1)
   .onChange(                
     function(value) {
       varRotation = value
@@ -43,14 +43,14 @@ const loadGUI = (gui, m4, u_world, cameraPosition, zNear, zFar, cameraTarget, pa
   );
 
   //console.log("Na func:" + parts)
-  gui.addColor(palette, 'Color')
+  params.gui.addColor(palette, 'Color')
   .onChange(
     function(value) {
       for(var i = 0; i < 11; i++){
         //console.log(colorVector[i])
         //colorVector[i]= value;
         //console.log(colorVector[i])
-        parts[i].bufferInfo.attribs.a_color = value;
+        params.parts[i].bufferInfo.attribs.a_color = value;
         //obj.geometries[i].data.color = value
       }
     }

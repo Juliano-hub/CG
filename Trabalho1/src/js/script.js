@@ -297,8 +297,16 @@ async function main() {
 
   const gui = new dat.GUI();
 
-  //console.log(geometry)
-  loadGUI(gui, m4, u_world, cameraPosition, zNear, zFar, cameraTarget, parts);
+  var params = {
+    gui: gui,
+    cameraPosition: cameraPosition,
+    zNear: zNear,
+    zFar: zFar,
+    cameraTarget: cameraTarget,
+    parts: parts,
+  }
+
+  loadGUI(params, varRotation);
   
   function render() {
     //time *= 0.001
