@@ -170,13 +170,10 @@ async function main() {
   const vs = `#version 300 es
   in vec4 a_position;
   in vec3 a_normal;
-
   uniform mat4 u_projection;
   uniform mat4 u_view;
   uniform mat4 u_world;
-
   out vec3 v_normal;
-
   void main() {
     gl_Position = u_projection * u_view * u_world * a_position;
     v_normal = mat3(u_world) * a_normal;
@@ -185,15 +182,11 @@ async function main() {
 
   const fs = `#version 300 es
   precision highp float;
-
   in vec3 v_normal;
-
   uniform vec4 u_diffuse;
   uniform vec3 u_lightDirection;
   uniform vec4 u_color;
-
   out vec4 outColor;
-
   void main () {
     vec3 normal = normalize(v_normal);
     float fakeLight = dot(u_lightDirection, normal) * .5 + .5;
@@ -304,10 +297,10 @@ async function main() {
     zFar: zFar,
     cameraTarget: cameraTarget,
     parts: parts,
+    newDiffuseColor: [],
   }
-  const newDiffuseColor = [];
-  
-  loadGUI(params, newDiffuseColor);
+
+  loadGUI(params);
   
   function render() {
     //time *= 0.001
@@ -359,8 +352,8 @@ async function main() {
       //aqq
       gl.useProgram(meshProgramInfo.program);
 
-      twgl.setUniforms(meshProgramInfo, { u_diffuse: material.u_diffuse });
-      //twgl.setUniforms(meshProgramInfo, { u_diffuse: newDiffuseColor });
+      //twgl.setUniforms(meshProgramInfo, { u_diffuse: material.u_diffuse });
+      twgl.setUniforms(meshProgramInfo, { u_diffuse: params.newDiffuseColor });
 
       twgl.drawBufferInfo(gl, bufferInfo);
     }
