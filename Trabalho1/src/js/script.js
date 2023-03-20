@@ -1,22 +1,23 @@
-// WebGL2 - load obj - w mtl, no textures
-// from https://webgl2fundamentals.org/webgl/webgl-load-obj-w-mtl-no-textures.html
+// WebGL2 - load obj - w/extents
+// from https://webgl2fundamentals.org/webgl/webgl-load-obj-w-extents.html
 
 
 "use strict";
+
+// This is not a full .obj parser.
+// see http://paulbourke.net/dataformats/obj/
 
 function parseOBJ(text) {
   // because indices are base 1 let's just fill in the 0th data
   const objPositions = [[0, 0, 0]];
   const objTexcoords = [[0, 0]];
   const objNormals = [[0, 0, 0]];
-  const objColors = [[0, 0, 0]];
 
   // same order as `f` indices
   const objVertexData = [
     objPositions,
     objTexcoords,
     objNormals,
-    objColors,
   ];
 
   // same order as `f` indices
@@ -24,7 +25,6 @@ function parseOBJ(text) {
     [],   // positions
     [],   // texcoords
     [],   // normals
-    [],   // colors
   ];
 
   const materialLibs = [];
@@ -49,12 +49,10 @@ function parseOBJ(text) {
       const position = [];
       const texcoord = [];
       const normal = [];
-      const color = [];
       webglVertexData = [
         position,
         texcoord,
         normal,
-        color,
       ];
       geometry = {
         object,
@@ -64,7 +62,6 @@ function parseOBJ(text) {
           position,
           texcoord,
           normal,
-          color,
         },
       };
       geometries.push(geometry);
@@ -80,23 +77,12 @@ function parseOBJ(text) {
       const objIndex = parseInt(objIndexStr);
       const index = objIndex + (objIndex >= 0 ? 0 : objVertexData[i].length);
       webglVertexData[i].push(...objVertexData[i][index]);
-      // if this is the position index (index 0) and we parsed
-      // vertex colors then copy the vertex colors to the webgl vertex color data
-      if (i === 0 && objColors.length > 1) {
-        geometry.data.color.push(...objColors[index]);
-      }
     });
   }
 
   const keywords = {
     v(parts) {
-      // if there are more than 3 values here they are vertex colors
-      if (parts.length > 3) {
-        objPositions.push(parts.slice(0, 3).map(parseFloat));
-        objColors.push(parts.slice(3).map(parseFloat));
-      } else {
-        objPositions.push(parts.map(parseFloat));
-      }
+      objPositions.push(parts.map(parseFloat));
     },
     vn(parts) {
       objNormals.push(parts.map(parseFloat));
@@ -167,59 +153,9 @@ function parseOBJ(text) {
   };
 }
 
-function parseMapArgs(unparsedArgs) {
-  // TODO: handle options
-  return unparsedArgs;
-}
-
-function parseMTL(text) {
-  const materials = {};
-  let material;
-
-  const keywords = {
-    newmtl(parts, unparsedArgs) {
-      material = {};
-      materials[unparsedArgs] = material;
-    },
-    /* eslint brace-style:0 */
-    Ns(parts)     { material.shininess      = parseFloat(parts[0]); },
-    Ka(parts)     { material.ambient        = parts.map(parseFloat); },
-    Kd(parts)     { material.diffuse        = parts.map(parseFloat); },
-    Ks(parts)     { material.specular       = parts.map(parseFloat); },
-    Ke(parts)     { material.emissive       = parts.map(parseFloat); },
-    Ni(parts)     { material.opticalDensity = parseFloat(parts[0]); },
-    d(parts)      { material.opacity        = parseFloat(parts[0]); },
-    illum(parts)  { material.illum          = parseInt(parts[0]); },
-  };
-
-  const keywordRE = /(\w*)(?: )*(.*)/;
-  const lines = text.split('\n');
-  for (let lineNo = 0; lineNo < lines.length; ++lineNo) {
-    const line = lines[lineNo].trim();
-    if (line === '' || line.startsWith('#')) {
-      continue;
-    }
-    const m = keywordRE.exec(line);
-    if (!m) {
-      continue;
-    }
-    const [, keyword, unparsedArgs] = m;
-    const parts = line.split(/\s+/).slice(1);
-    const handler = keywords[keyword];
-    if (!handler) {
-      console.warn('unhandled keyword:', keyword);  // eslint-disable-line no-console
-      continue;
-    }
-    handler(parts, unparsedArgs);
-  }
-
-  return materials;
-}
-
 var varRotation = 0
 
 async function main() {
-
   // Get A WebGL context
   /** @type {HTMLCanvasElement} */
   const canvas = document.querySelector("#canvas");
@@ -234,72 +170,50 @@ async function main() {
   const vs = `#version 300 es
   in vec4 a_position;
   in vec3 a_normal;
-  in vec4 a_color;
+
   uniform mat4 u_projection;
   uniform mat4 u_view;
   uniform mat4 u_world;
-  uniform vec3 u_viewWorldPosition;
+
   out vec3 v_normal;
-  out vec3 v_surfaceToView;
-  out vec4 v_color;
+
   void main() {
-    vec4 worldPosition = u_world * a_position;
-    gl_Position = u_projection * u_view * worldPosition;
-    v_surfaceToView = u_viewWorldPosition - worldPosition.xyz;
+    gl_Position = u_projection * u_view * u_world * a_position;
     v_normal = mat3(u_world) * a_normal;
-    v_color = a_color;
   }
   `;
 
   const fs = `#version 300 es
   precision highp float;
+
   in vec3 v_normal;
-  in vec3 v_surfaceToView;
-  in vec4 v_color;
-  uniform vec3 diffuse;
-  uniform vec3 ambient;
-  uniform vec3 emissive;
-  uniform vec3 specular;
-  uniform float shininess;
-  uniform float opacity;
+
+  uniform vec4 u_diffuse;
   uniform vec3 u_lightDirection;
-  uniform vec3 u_ambientLight;
-  uniform mat4 u_rotationMatrix;
+  uniform vec4 u_color;
+
   out vec4 outColor;
+
   void main () {
     vec3 normal = normalize(v_normal);
-    vec3 surfaceToViewDirection = normalize(v_surfaceToView);
-    vec3 halfVector = normalize(u_lightDirection + surfaceToViewDirection);
     float fakeLight = dot(u_lightDirection, normal) * .5 + .5;
-    float specularLight = clamp(dot(normal, halfVector), 0.0, 1.0);
-    vec3 effectiveDiffuse = diffuse.rgb * v_color.rgb;
-    float effectiveOpacity = v_color.a * opacity;
-    outColor = vec4(
-        emissive +
-        ambient * u_ambientLight +
-        effectiveDiffuse * fakeLight +
-        specular * pow(specularLight, shininess),
-        effectiveOpacity);
+    outColor = vec4(u_diffuse.rgb * fakeLight, u_diffuse.a);
   }
   `;
 
+
   // compiles and links the shaders, looks up attribute and uniform locations
-
   const meshProgramInfo = twgl.createProgramInfo(gl, [vs, fs]);
+  const color = [1, 0, 0, 1];  // [R, G, B, A]
+  gl.useProgram(meshProgramInfo.program);
+  gl.uniform4f(meshProgramInfo.u_color, ...color);
 
-  const objHref = 'https://webgl2fundamentals.org/webgl/resources/models/chair/chair.obj';  
-  const response = await fetch(objHref);
+
+  const response = await fetch('https://webgl2fundamentals.org/webgl/resources/models/chair/chair.obj');  
   const text = await response.text();
   const obj = parseOBJ(text);
-  const baseHref = new URL(objHref, window.location.href);
-  const matTexts = await Promise.all(obj.materialLibs.map(async filename => {
-    const matHref = new URL(filename, baseHref).href;
-    const response = await fetch(matHref);
-    return await response.text();
-  }));
-  const materials = parseMTL(matTexts.join('\n'));
 
-  const parts = obj.geometries.map(({material, data}) => {
+  const parts = obj.geometries.map(({data}) => {
     // Because data is just named arrays like this
     //
     // {
@@ -312,24 +226,15 @@ async function main() {
     // shader we can pass it directly into `createBufferInfoFromArrays`
     // from the article "less code more fun".
 
-    if (data.color) {
-      if (data.position.length === data.color.length) {
-        // it's 3. The our helper library assumes 4 so we need
-        // to tell it there are only 3.
-        data.color = { numComponents: 3, data: data.color };
-      }
-    } else {
-      // there are no vertex colors so just use constant white
-      // AQQ
-      data.color = { value: [0.58, 0.58, 0.58, 1] };
-    }
-
     // create a buffer for each array by calling
     // gl.createBuffer, gl.bindBuffer, gl.bufferData
     const bufferInfo = twgl.createBufferInfoFromArrays(gl, data);
     const vao = twgl.createVAOFromBufferInfo(gl, meshProgramInfo, bufferInfo);
     return {
-      material: materials[material],
+      material: {
+        u_diffuse: [Math.random(), Math.random(), Math.random(), 1],
+        u_color: [Math.random(), Math.random(), Math.random(), 1],
+      },
       bufferInfo,
       vao,
     };
@@ -369,18 +274,15 @@ async function main() {
         extents.min,
         m4.scaleVector(range, 0.5)),
       -1);
-
   const cameraTarget = [0, 0, 0];
   // figure out how far away to move the camera so we can likely
   // see the object.
-  const radius = m4.length(range) *1.6;
-
+  const radius = m4.length(range) * 1.2;
   const cameraPosition = m4.addVectors(cameraTarget, [
     0,
     0,
     radius,
   ]);
-
   // Set zNear and zFar to something hopefully appropriate
   // for the size of this object.
   const zNear = radius / 100;
@@ -390,21 +292,13 @@ async function main() {
     return deg * Math.PI / 180;
   }
 
-  const radians = Math.PI / 180 * 45;
-  const rotationMatrix = [
-    Math.cos(radians), 0, -Math.sin(radians), 0,
-    0, 1, 0, 0,
-    Math.sin(radians), 0, Math.cos(radians), 0,
-    0, 0, 0, 1,
-  ];
-
   let u_world = m4.yRotation(30);
   u_world = m4.translate(u_world, ...objOffset);
 
   const gui = new dat.GUI();
 
   //console.log(geometry)
-  loadGUI(gui, m4, u_world, cameraPosition, zNear, zFar, cameraTarget);
+  loadGUI(gui, m4, u_world, cameraPosition, zNear, zFar, cameraTarget, parts);
   
   function render() {
     //time *= 0.001
@@ -439,8 +333,8 @@ async function main() {
     // compute the world matrix once since all parts
     // are at the same space.
     
-      u_world = m4.yRotation(varRotation);
-      u_world = m4.translate(u_world, ...objOffset);  
+    u_world = m4.yRotation(varRotation);
+    u_world = m4.translate(u_world, ...objOffset);  
 
     for (const {bufferInfo, vao, material} of parts) {
       // set the attributes for this part.
@@ -448,8 +342,17 @@ async function main() {
       // calls gl.uniform
       twgl.setUniforms(meshProgramInfo, {
         u_world,
+        u_color: color,
+        u_diffuse: material.u_diffuse,
       }, material);
       // calls gl.drawArrays or gl.drawElements
+
+      //aqq
+      const newDiffuseColor = [1.0, 0.0, 0.0, 1.0]; // vermelho
+      gl.useProgram(meshProgramInfo.program);
+      twgl.setUniforms(meshProgramInfo, { u_diffuse: newDiffuseColor });
+      //
+
       twgl.drawBufferInfo(gl, bufferInfo);
     }
 

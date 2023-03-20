@@ -1,4 +1,5 @@
-const loadGUI = (gui, m4, u_world, cameraPosition, zNear, zFar, cameraTarget, clientWidth) => {
+const loadGUI = (gui, m4, u_world, cameraPosition, zNear, zFar, cameraTarget, parts) => {
+
   var parameters = {
     Rotation: 0,
   };
@@ -10,7 +11,7 @@ const loadGUI = (gui, m4, u_world, cameraPosition, zNear, zFar, cameraTarget, cl
   }
 
   var palette = {
-    color1: [ 0, 128, 255, 0.3 ], // RGB with alpha
+    Color: [ 0, 128, 255, 0.3 ], // RGB with alpha
   };
 
   gui.add(cam, "x", -20, 20, 0.1).name("CAM x")
@@ -41,10 +42,17 @@ const loadGUI = (gui, m4, u_world, cameraPosition, zNear, zFar, cameraTarget, cl
     }
   );
 
-  gui.addColor(palette, 'color1')
+  //console.log("Na func:" + parts)
+  gui.addColor(palette, 'Color')
   .onChange(
     function(value) {
-      u_world.setColor(value);
+      for(var i = 0; i < 11; i++){
+        //console.log(colorVector[i])
+        //colorVector[i]= value;
+        //console.log(colorVector[i])
+        parts[i].bufferInfo.attribs.a_color = value;
+        //obj.geometries[i].data.color = value
+      }
     }
   );
 }
