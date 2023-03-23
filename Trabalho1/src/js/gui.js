@@ -14,31 +14,31 @@ const loadGUI = (params) => {
     Color: [ 0, 128, 255, 0.3 ], // RGB with alpha
   };
 
-  params.gui.add(cam, "x", -20, 20, 0.1).name("CAM x")
+  params.gui.add(cam, "x", -7.9, 7.9, 0.1).name("CAM x")
   .onChange(                
     function(value) {
-      params.cameraTarget[0] = value;          
+      params.x = value;          
     }
   );
 
   params.gui.add(cam, "y", -7.9, 7.9, 0.1).name("CAM y")
   .onChange(                
     function(value) {
-      params.cameraTarget[1] = value;          
+      params.y = value;          
     }
   );
 
-  params.gui.add(cam, "z", params.zNear + 1, params.zFar, 0.5).name("CAM z")
+  params.gui.add(cam, "z", params.Near, params.Far, 0.1).name("CAM z")
   .onChange(                
     function(value) {
-      params.cameraPosition[2] = value;          
+      params.fieldOfViewRadians = value;          
     }
   );
 
   params.gui.add(parameters, "Rotation", 0, 6.3, 0.1)
   .onChange(                
     function(value) {
-      varRotation = value
+      params.y = value
     }
   );
 
@@ -52,4 +52,21 @@ const loadGUI = (params) => {
       params.newDiffuseColor[3] = value[3];
     }
   );
+
+  var objj = { add:function(){ 
+
+    console.log("clicked") 
+    //console.log(params.obj)
+
+    const fs = require('fs');
+
+    fs.writeFile('arquivo.txt', params.obj, (err) => {
+      if (err) throw err;
+      console.log('As informações foram salvas no arquivo!');
+    });
+
+
+  }};
+
+  params.gui.add(objj,'add').name('Save Obj');
 }

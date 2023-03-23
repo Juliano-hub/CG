@@ -12,10 +12,9 @@
 
 Para rodar o trabalho entre na pasta do projeto e rode no terminal `npx live-server`.
 
-## Código fonte do objeto cadeira
-(https://webgl2fundamentals.org/webgl/lessons/webgl-load-obj-w-mtl.html)
+## Código fonte do objeto
+https://webgl2fundamentals.org/webgl/lessons/webgl-3d-textures.html
 
-## Fonte imagem
-Foto de Pixabay no Pexels: https://www.pexels.com/pt-br/foto/conjunto-de-mesa-de-madeira-branca-com-cadeiras-416320/
+## Fonte das texturas utilizadas
+"TNT" (https://skfb.ly/ouuwJ) by ApixCraft is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).
 
-Foto de Markus Winkler no Pexels: https://www.pexels.com/pt-br/foto/exibido-demonstrado-exposto-mobilia-13796745/

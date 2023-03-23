@@ -1,30 +1,40 @@
-const vertexShaderSource = `#version 300 es
+var vs = `#version 300 es
+// an attribute is an input (in) to a vertex shader.
+// It will receive data from a buffer
+in vec4 a_position;
+in vec2 a_texcoord;
 
-  in vec4 a_position;
-  in vec4 a_color;
+// A matrix to transform the positions by
+uniform mat4 u_matrix;
 
-  uniform mat4 u_matrix;
+// a varying to pass the texture coordinates to the fragment shader
+out vec2 v_texcoord;
 
-  out vec4 v_color;
+// all shaders have a main function
+void main() {
+  // Multiply the position by the matrix.
+  gl_Position = u_matrix * a_position;
 
-  void main() {
-    gl_Position = u_matrix * a_position;
-
-    v_color = a_color;
-  }
+  // Pass the texcoord to the fragment shader.
+  v_texcoord = a_texcoord;
+}
 `;
 
-const fragmentShaderSource = `#version 300 es
+var fs = `#version 300 es
+
 precision highp float;
 
-in vec4 v_color;
+// Passed in from the vertex shader.
+in vec2 v_texcoord;
 
-uniform vec4 u_colorMult;
+// The texture.
+uniform sampler2D u_texture;
 
+// we need to declare an output for the fragment shader
 out vec4 outColor;
 
 void main() {
-   outColor = v_color * u_colorMult;
+  outColor = texture(u_texture, v_texcoord);
 }
 `;
 
