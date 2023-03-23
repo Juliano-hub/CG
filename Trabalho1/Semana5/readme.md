@@ -1,1 +1,0 @@
-Códido fonte utilizado para modificação: https://webgl2fundamentals.org/webgl/lessons/webgl-2d-matrices.html
