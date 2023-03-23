@@ -14,21 +14,20 @@ const loadGUI = (params) => {
     Color: [ 0, 128, 255, 0.3 ], // RGB with alpha
   };
 
-  params.gui.add(cam, "x", -7.9, 7.9, 0.1).name("CAM x")
+  params.gui.add(cam, "x", -7.9, 7.9, 0.1).name("x")
   .onChange(                
     function(value) {
       params.x = value;          
     }
   );
-
-  params.gui.add(cam, "y", -7.9, 7.9, 0.1).name("CAM y")
+  params.gui.add(cam, "y", -7.9, 7.9, 0.1).name("y")
   .onChange(                
     function(value) {
       params.y = value;          
     }
   );
 
-  params.gui.add(cam, "z", params.Near, params.Far, 0.1).name("CAM z")
+  params.gui.add(cam, "z", params.Near, params.Far, 0.1).name("z")
   .onChange(                
     function(value) {
       params.fieldOfViewRadians = value;          
@@ -42,16 +41,21 @@ const loadGUI = (params) => {
     }
   );
 
-  //console.log("Na func:" + parts)
-  params.gui.addColor(palette, 'Color')
-  .onChange(
-    function(value) {
-      params.newDiffuseColor[0] = value[0];
-      params.newDiffuseColor[1] = value[1];
-      params.newDiffuseColor[2] = value[2];
-      params.newDiffuseColor[3] = value[3];
+  var textureChange = { ChangeTexture:function(){ 
+    params.TextureValue = !params.TextureValue;
+    console.log('aqq')
+    console.log(params.TextureValue)
+    if(params.TextureValue == true){
+      image.src = "obj/Exodius.png";
+    }else{
+      image.src = "obj/TNT_BLOCK_Edited.png";
     }
-  );
+
+
+  }};
+
+  params.gui.add(textureChange,'ChangeTexture').name('Change Texture');
+
 
   var objj = { add:function(){ 
 

@@ -44,6 +44,9 @@ void main() {
 }
 `;
 
+var image = new Image();
+image.src = "obj/TNT_BLOCK_Edited.png";
+
 function main() {
   // Get A WebGL context
   /** @type {HTMLCanvasElement} */
@@ -123,8 +126,6 @@ function main() {
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
 
   // Asynchronously load an image
-  var image = new Image();
-  image.src = "obj/TNT_BLOCK_Edited.png";
   image.addEventListener('load', function() {
     // Now that the image has loaded make copy it to the texture.
     gl.bindTexture(gl.TEXTURE_2D, texture);
@@ -156,11 +157,11 @@ function main() {
     fieldOfViewRadians: fieldOfViewRadians,
     Near: zNear,
     Far: zFar,
+    TextureValue: true,
   }
 
   loadGUI(params);
-
-
+  
   function render() {
     webglUtils.resizeCanvasToDisplaySize(gl.canvas);
 
