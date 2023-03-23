@@ -1,0 +1,30 @@
+@import url('https://webgl2fundamentals.org/webgl/resources/webgl-tutorials.css');
+body {
+  margin: 0;
+  padding: 0;
+}
+canvas {
+  border-radius: 25px;
+  width: 25vw;
+  height: 25vh;
+  display: block;
+}
+
+#customCARD{
+  display: block;
+  border: 15px solid grey;
+  width: 27vw;
+  border-radius: 15px;
+  background-color: grey;
+}
+
+#background {
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  left: 0;
+  top: 0;
+  z-index: -1;
+  border: none;
+  pointer-events: none;
+}
