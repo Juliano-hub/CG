@@ -17,5 +17,7 @@ https://webgl2fundamentals.org/webgl/lessons/webgl-3d-textures.html
 
 https://webgl2fundamentals.org/webgl/lessons/webgl-load-obj.html
 
+https://webgl2fundamentals.org/webgl/lessons/webgl-tips.html#html-background
+
 ## Fonte das texturas utilizadas
 "TNT" (https://skfb.ly/ouuwJ) by ApixCraft is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).
