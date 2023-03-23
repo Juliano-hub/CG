@@ -10,7 +10,7 @@
 
 ## Rodar o projeto
 
-Para rodar o trabalho entre na pasta do projeto e rode no terminal `npx live-server`.
+Para rodar o trabalho entre na pasta do projeto e rode no terminal `npx live-server`. Ou extensão live server do VS Code.
 
 ## Código fonte utilizados como base
 https://webgl2fundamentals.org/webgl/lessons/webgl-3d-textures.html
