@@ -48,7 +48,7 @@ void main() {
 `;
 
 var image = new Image();
-image.src = "obj/TNT_BLOCK_Edited.png";
+image.src = "obj/TNT_Block.png";
 
 function mainTexture(canvasNUM = "#canvas2") {
 

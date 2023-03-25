@@ -1,5 +1,5 @@
 var guiTexture = {
-  TextureValue: "obj/TNT_BLOCK_Edited.png",
+  TextureValue: "obj/TNT_Block.png",
 };
 
 const loadGUI = (params) => {
@@ -49,7 +49,7 @@ const loadGUI = (params) => {
     if(params.TextureValue == true){
       image.src = "obj/Exodius.png";
     }else{
-      image.src = "obj/TNT_BLOCK_Edited.png";
+      image.src = "obj/TNT_Block.png";
     }}}
 
   params.gui.add(textureChange,'ChangeTexture').name('Change Texture');
