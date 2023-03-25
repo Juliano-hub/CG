@@ -1,7 +1,7 @@
 "use strict";
 
-// This is not a full .obj[numShop]. parser.
-// see http://paulbourke.net/dataformats/obj[numShop]./
+// This is not a full obj parser.
+// see http://paulbourke.net/dataformats/obj/
 
 function parseOBJ(text) {
   // because indices are base 1 let's just fill in the 0th data
@@ -252,9 +252,13 @@ async function main(canvasNUM = "#canvas") {
   }
 
   const extents = getGeometriesExtents(obj.geometries);
-  console.log(extents)
-  extents.max[1] = numShop;
-  extents.min[1] = numShop;
+  //console.log(extents)
+  
+  if(canvasNUM != "#canvas") {
+    extents.max[1] = numShop;
+    extents.min[1] = numShop;
+  }
+
   const range = m4.subtractVectors(extents.max, extents.min);
   // amount to move the object so its center is at the origin
 
@@ -332,7 +336,7 @@ async function main(canvasNUM = "#canvas") {
       u_world[12] = numShop;
     }
     */
-   
+
     for (const {bufferInfo, vao, material} of parts) {
       // set the attributes for this part.
       gl.bindVertexArray(vao);
@@ -356,7 +360,6 @@ var gui = new dat.GUI();
 var numShop = -1;
 
 function buyColor() {
-  console.log('SHOP'+ numShop)
   numShop += 1;
   main("#canvas3");
 }

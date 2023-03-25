@@ -12,6 +12,14 @@ canvas {
   margin-left: 0%;
 }
 
+#canvas3 {
+  border-radius: 25px;
+  width: 25vw;
+  height: 25vh;
+  display: block;
+  margin-left: 0%;
+}
+
 showCanvas {
   border-radius: 25px;
   width: 50vw;
