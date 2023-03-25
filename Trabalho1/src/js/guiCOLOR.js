@@ -13,5 +13,4 @@ const loadGUIColor = (params) => {
             params.newColor[3] = value[3]
         }
     );
-    
   }

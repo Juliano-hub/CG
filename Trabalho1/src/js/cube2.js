@@ -340,10 +340,6 @@ var params = {
 
 function buyColor() {
   numShop++;
-  console.log('apertou');
-  console.log(newColor);
-  console.log(params.newColor);
-
   main("#canvas3");
 }
 
