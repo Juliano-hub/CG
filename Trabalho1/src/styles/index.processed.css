@@ -10,6 +10,16 @@ canvas {
   display: block;
 }
 
+showCanvas {
+  border-radius: 25px;
+  width: 50vw;
+  height: 50vh;
+  display: block;
+  border-width: 3px;
+  border-style: solid;
+  border-color:  black;
+}
+
 #customCARD{
   display: block;
   border: 15px solid grey;

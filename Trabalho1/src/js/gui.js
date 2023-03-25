@@ -46,8 +46,6 @@ const loadGUI = (params) => {
 
   var textureChange = { ChangeTexture:function(){ 
     params.TextureValue = !params.TextureValue;
-    console.log('aqq')
-    console.log(params.TextureValue)
     if(params.TextureValue == true){
       image.src = "obj/Exodius.png";
     }else{
@@ -58,22 +56,4 @@ const loadGUI = (params) => {
   }};
 
   params.gui.add(textureChange,'ChangeTexture').name('Change Texture');
-
-
-  var objj = { add:function(){ 
-
-    console.log("clicked") 
-    //console.log(params.obj)
-
-    const fs = require('fs');
-
-    fs.writeFile('arquivo.txt', params.obj, (err) => {
-      if (err) throw err;
-      console.log('As informações foram salvas no arquivo!');
-    });
-
-
-  }};
-
-  params.gui.add(objj,'add').name('Save Obj');
 }
