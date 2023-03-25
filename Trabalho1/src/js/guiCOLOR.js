@@ -1,8 +1,8 @@
-const loadGUIColor = (params) => {
+var palette = {
+  color: [1.0, 0.0, 0.0, 1.0], // RGB with alpha
+};
 
-    var palette = {
-        color: [ 0, 128, 255, 0.3 ], // RGB with alpha
-      };
+const loadGUIColor = (params) => {
 
     params.gui.addColor(palette, "color").name("Change Color")
     .onChange(                

@@ -193,6 +193,7 @@ async function main(canvasNUM = "#canvas") {
 
   const response = await fetch('https://webgl2fundamentals.org/webgl/resources/models/cube/cube.obj');  
   const text = await response.text();
+  
   const obj = parseOBJ(text);
 
   const parts = obj.geometries.map(({data}) => {
@@ -265,6 +266,7 @@ async function main(canvasNUM = "#canvas") {
     0,
     radius,
   ]);
+
   // Set zNear and zFar to something hopefully appropriate
   // for the size of this object.
   const zNear = radius / 100;
@@ -273,8 +275,13 @@ async function main(canvasNUM = "#canvas") {
   function degToRad(deg) {
     return deg * Math.PI / 180;
   }
-
-  if(canvasNUM == "#canvas")
+  
+  var params = {
+    gui: gui,
+    newColor:  palette.color,
+  }
+  
+  if(canvasNUM === "#canvas")
     loadGUIColor(params);
   
 
@@ -312,13 +319,15 @@ async function main(canvasNUM = "#canvas") {
     let u_world = m4.yRotation(time);
     u_world = m4.translate(u_world, ...objOffset);
 
+    console.log(params.newColor)
+
     for (const {bufferInfo, vao, material} of parts) {
       // set the attributes for this part.
       gl.bindVertexArray(vao);
       // calls gl.uniform
       twgl.setUniforms(meshProgramInfo, {
         u_world,
-        u_diffuse: newColor,
+        u_diffuse: [...params.newColor],
       });
       // calls gl.drawArrays or gl.drawElements
       twgl.drawBufferInfo(gl, bufferInfo);
@@ -331,15 +340,11 @@ async function main(canvasNUM = "#canvas") {
   requestAnimationFrame(render);
 }
 
+var gui = new dat.GUI();
 var numShop = 0;
-var newColor = [1.0, 0.0, 0.0, 1.0]
-var params = {
-  gui: new dat.GUI(),
-  newColor:  newColor,
-}
 
 function buyColor() {
-  numShop++;
+  numShop += 10;
   main("#canvas3");
 }
 
