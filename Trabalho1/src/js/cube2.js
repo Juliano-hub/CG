@@ -191,7 +191,7 @@ async function main(canvasNUM = "#canvas") {
   // compiles and links the shaders, looks up attribute and uniform locations
   const meshProgramInfo = twgl.createProgramInfo(gl, [vs, fs]);
 
-  const response = await fetch('https://webgl2fundamentals.org/webgl/resources/models/cube/cube.obj');  
+  const response = await fetch('obj/cube.obj');  
   const text = await response.text();
   
   const obj = parseOBJ(text);
@@ -283,9 +283,11 @@ async function main(canvasNUM = "#canvas") {
   
   if(canvasNUM === "#canvas")
     loadGUIColor(params);
-  
 
   function render(time) {
+    console.log('aq')
+    console.log(params.newColor)
+    console.log(palette.color)
     time *= 0.001;  // convert to seconds
 
     twgl.resizeCanvasToDisplaySize(gl.canvas);
@@ -319,8 +321,6 @@ async function main(canvasNUM = "#canvas") {
     let u_world = m4.yRotation(time);
     u_world = m4.translate(u_world, ...objOffset);
 
-    console.log(params.newColor)
-
     for (const {bufferInfo, vao, material} of parts) {
       // set the attributes for this part.
       gl.bindVertexArray(vao);
@@ -344,7 +344,7 @@ var gui = new dat.GUI();
 var numShop = 0;
 
 function buyColor() {
-  numShop += 10;
+  numShop += 1;
   main("#canvas3");
 }
 
