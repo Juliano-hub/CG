@@ -47,10 +47,10 @@ void main() {
 var image = new Image();
 image.src = "obj/TNT_BLOCK_Edited.png";
 
-function main() {
+function mainTexture(canvasNUM = "#canvas2") {
   // Get A WebGL context
   /** @type {HTMLCanvasElement} */
-  var canvas = document.querySelector("#canvas2");
+  var canvas = document.querySelector(canvasNUM);
 
   var gl = canvas.getContext("webgl2");
   if (!gl) {
@@ -159,8 +159,8 @@ function main() {
     Far: zFar,
     TextureValue: true,
   }
-
-  loadGUI(params);
+  if(canvasNUM === "#canvas2")
+    loadGUI(params);
   
   function render() {
     webglUtils.resizeCanvasToDisplaySize(gl.canvas);
@@ -316,4 +316,12 @@ function setTexcoords(gl) {
       gl.STATIC_DRAW);
 }
 
-main();
+var numShopColor = -1;
+
+function buyTexture() {
+  console.log('SHOP'+ numShopColor)
+  numShopColor += 1;
+  mainTexture("#canvas3");
+}
+
+mainTexture();
