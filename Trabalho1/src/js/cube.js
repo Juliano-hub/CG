@@ -13,13 +13,16 @@ in vec2 a_texcoord;
 // A matrix to transform the positions by
 uniform mat4 u_matrix;
 
+// The amount of translation to apply to the position
+uniform vec3 u_translation;
+
 // a varying to pass the texture coordinates to the fragment shader
 out vec2 v_texcoord;
 
 // all shaders have a main function
 void main() {
   // Multiply the position by the matrix.
-  gl_Position = u_matrix * a_position;
+  gl_Position = u_matrix * a_position + vec4(u_translation, 0.0);
 
   // Pass the texcoord to the fragment shader.
   v_texcoord = a_texcoord;
@@ -68,10 +71,12 @@ function mainTexture(canvasNUM = "#canvas2") {
   // look up where the vertex data needs to go.
   var positionAttributeLocation = gl.getAttribLocation(program, "a_position");
   var texcoordAttributeLocation = gl.getAttribLocation(program, "a_texcoord");
+  var translationLocation = gl.getUniformLocation(program, "u_translation");
+  var translation = [0.0, 0.0, 0.0];
 
   // look up uniform locations
   var matrixLocation = gl.getUniformLocation(program, "u_matrix");
-
+  console.log(positionAttributeLocation)
   // Create a vertex array object (attribute state)
   var vao = gl.createVertexArray();
 
@@ -208,6 +213,8 @@ function mainTexture(canvasNUM = "#canvas2") {
     var offset = 0;
     var count = 6 * 6;
     gl.drawArrays(primitiveType, offset, count);
+
+    gl.uniform3f(translationLocation, translation[0], translation[1], translation[2]);
 
     // Call render again next frame
     requestAnimationFrame(render);
