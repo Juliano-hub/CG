@@ -20,18 +20,6 @@ canvas {
   margin-left: 0%;
 }
 
-showCanvas {
-  border-radius: 25px;
-  width: 50vw;
-  height: 50vh;
-  display: block;
-  border-width: 3px;
-  border-style: solid;
-  border-color:  black;
-  background-color: white;
-  float: left;
-}
-
 #customCARD{
   display: block;
   border: 15px solid grey;

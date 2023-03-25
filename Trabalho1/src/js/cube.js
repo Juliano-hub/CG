@@ -51,9 +51,6 @@ var image = new Image();
 image.src = "obj/TNT_BLOCK_Edited.png";
 
 function mainTexture(canvasNUM = "#canvas2") {
-  if(canvasNUM === "#canvas3"){
-    
-  }
 
   // Get A WebGL context
   /** @type {HTMLCanvasElement} */
@@ -72,7 +69,13 @@ function mainTexture(canvasNUM = "#canvas2") {
   var positionAttributeLocation = gl.getAttribLocation(program, "a_position");
   var texcoordAttributeLocation = gl.getAttribLocation(program, "a_texcoord");
   var translationLocation = gl.getUniformLocation(program, "u_translation");
-  var translation = [0.0, 0.0, 0.0];
+  var translation = []
+
+  if(canvasNUM === "#canvas3"){
+    translation = [0.8, -numShopColor, 1];
+  }else{
+    translation = [0.0, 0.0, 0.0];
+  }
 
   // look up uniform locations
   var matrixLocation = gl.getUniformLocation(program, "u_matrix");
@@ -150,14 +153,16 @@ function mainTexture(canvasNUM = "#canvas2") {
   var modelXRotationRadians = degToRad(0);
   var modelYRotationRadians = degToRad(0);
 
+  if(canvasNUM === "#canvas3")
+    fieldOfViewRadians = degToRad(120);
+    modelYRotationRadians = degToRad(-5);
+
   var zNear = 1;
   var zFar = 3;
 
   var cameraPosition = [0, 0, 2];
   var up = [0, 1, 0];
   var target = [0, 0, 0];
-
-  var gui = new dat.GUI();
 
   var params = {
     gui: gui,
@@ -327,10 +332,10 @@ function setTexcoords(gl) {
       gl.STATIC_DRAW);
 }
 
-var numShopColor = -4;
+var gui = new dat.GUI();
+var numShopColor = -2;
 
 function buyTexture() {
-  console.log('SHOP'+ numShopColor)
   numShopColor += 1;
   mainTexture("#canvas3");
 }
