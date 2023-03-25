@@ -3,11 +3,13 @@ body {
   margin: 0;
   padding: 0;
 }
+
 canvas {
   border-radius: 25px;
   width: 25vw;
   height: 25vh;
   display: block;
+  margin-left: 0%;
 }
 
 showCanvas {
@@ -18,6 +20,8 @@ showCanvas {
   border-width: 3px;
   border-style: solid;
   border-color:  black;
+  background-color: white;
+  float: left;
 }
 
 #customCARD{

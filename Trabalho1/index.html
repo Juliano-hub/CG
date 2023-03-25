@@ -14,23 +14,24 @@
 
 <body>
     <iframe id="background" src="https://webgl2fundamentals.org/webgl/background.html"></iframe>
-    <div id="customCARD">
-        <h2>SHOP</h2>
-        <div>
-            <canvas id="canvas2"></canvas>
-            <button onclick="buyTexture()">ADD to Cart</button>
+    <div style="display:flex">
+        <div id="customCARD">
+            <h2>SHOP</h2>
+            <div>
+                <canvas id="canvas2"></canvas>
+                <button onclick="buyTexture()">ADD to Cart</button>
+            </div>
+            
+            <div>
+                <canvas id="canvas"></canvas>
+                <button onclick="buyColor()">ADD to Cart</button>
+            </div>
         </div>
-        
-        <div>
-            <canvas id="canvas"></canvas>
-            <button onclick="buyColor()">ADD to Cart</button>
-        </div>
-    </div>
 
-    <div class="flex-item">
-            <canvas id="canvas3"></canvas>
+        <div class="flex-item" style="flex 1">
+                <showCanvas id="canvas3"></showCanvas>
+        </div>
     </div>
-    
     <!-- Scripts -->
     <script src="https://webgl2fundamentals.org/webgl/resources/twgl-full.min.js"></script>
     <script src="https://webgl2fundamentals.org/webgl/resources/m4.js"></script>
