@@ -72,6 +72,9 @@ function parseOBJ(text) {
       }
       const objIndex = parseInt(objIndexStr);
       const index = objIndex + (objIndex >= 0 ? 0 : objVertexData[i].length);
+      //console.log(objVertexData[i])
+
+
       webglVertexData[i].push(...objVertexData[i][index]);
     });
   }
@@ -285,9 +288,6 @@ async function main(canvasNUM = "#canvas") {
     loadGUIColor(params);
 
   function render(time) {
-    console.log('aq')
-    console.log(params.newColor)
-    console.log(palette.color)
     time *= 0.001;  // convert to seconds
 
     twgl.resizeCanvasToDisplaySize(gl.canvas);
@@ -319,7 +319,12 @@ async function main(canvasNUM = "#canvas") {
     // compute the world matrix once since all parts
     // are at the same space.
     let u_world = m4.yRotation(time);
+
     u_world = m4.translate(u_world, ...objOffset);
+    
+    if(canvasNUM != "#canvas"){
+      u_world[12] = numShop;
+    }
 
     for (const {bufferInfo, vao, material} of parts) {
       // set the attributes for this part.
@@ -341,12 +346,12 @@ async function main(canvasNUM = "#canvas") {
 }
 
 var gui = new dat.GUI();
-var numShop = 0;
+var numShop = -1;
 
 function buyColor() {
+  console.log('SHOP'+ numShop)
   numShop += 1;
   main("#canvas3");
 }
-
 
 main();
