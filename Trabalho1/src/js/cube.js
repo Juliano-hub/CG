@@ -48,6 +48,10 @@ var image = new Image();
 image.src = "obj/TNT_BLOCK_Edited.png";
 
 function mainTexture(canvasNUM = "#canvas2") {
+  if(canvasNUM === "#canvas3"){
+    
+  }
+
   // Get A WebGL context
   /** @type {HTMLCanvasElement} */
   var canvas = document.querySelector(canvasNUM);
@@ -316,7 +320,7 @@ function setTexcoords(gl) {
       gl.STATIC_DRAW);
 }
 
-var numShopColor = -1;
+var numShopColor = -4;
 
 function buyTexture() {
   console.log('SHOP'+ numShopColor)

@@ -255,8 +255,8 @@ async function main(canvasNUM = "#canvas") {
   //console.log(extents)
   
   if(canvasNUM != "#canvas") {
-    extents.max[1] = numShop;
-    extents.min[1] = numShop;
+    extents.max[1] = numShop*2.2;
+    extents.min[1] = numShop*2.2;
   }
 
   const range = m4.subtractVectors(extents.max, extents.min);
@@ -272,7 +272,13 @@ async function main(canvasNUM = "#canvas") {
   const cameraTarget = [0, 0, 0];
   // figure out how far away to move the camera so we can likely
   // see the object.
-  const radius = m4.length(range) * 1.2;
+
+  var radius = m4.length(range) * 1.2
+
+  if(canvasNUM != "#canvas") {
+    radius = m4.length(range) * 5;
+  }
+
   const cameraPosition = m4.addVectors(cameraTarget, [
     0,
     0,
@@ -357,7 +363,7 @@ async function main(canvasNUM = "#canvas") {
 }
 
 var gui = new dat.GUI();
-var numShop = -1;
+var numShop = -4;
 
 function buyColor() {
   numShop += 1;

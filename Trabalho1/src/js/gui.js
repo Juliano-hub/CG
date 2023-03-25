@@ -10,10 +10,6 @@ const loadGUI = (params) => {
     z: 0,
   }
 
-  var palette = {
-    Color: [ 0, 128, 255, 0.3 ], // RGB with alpha
-  };
-
   params.gui.add(cam, "x", -7.9, 7.9, 0.1).name("x")
   .onChange(                
     function(value) {
