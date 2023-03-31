@@ -331,7 +331,6 @@ async function main(canvasNUM = "#canvas") {
 
       cameraPosition[0] = funcReturn.x;
       cameraPosition[1] = funcReturn.y;
-      console.log(time);
     }
 
     const camera = m4.lookAt(cameraPosition, cameraTarget, up);
