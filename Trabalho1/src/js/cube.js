@@ -47,10 +47,11 @@ void main() {
 }
 `;
 
-var image = new Image();
-image.src = "obj/TNT_Block.png";
-
 function mainTexture(canvasNUM = "#canvas2") {
+  const image = new Image();
+  image.src = "obj/TNT_Block.png";
+  const image2 = new Image();
+  image2.src = "obj/Exodius.png";
 
   // Get A WebGL context
   /** @type {HTMLCanvasElement} */
@@ -72,14 +73,13 @@ function mainTexture(canvasNUM = "#canvas2") {
   var translation = []
 
   if(canvasNUM === "#canvas3"){
-    translation = [0.8, -numShopColor, 1];
+    translation = [0.8, -numShop-2, 1];
   }else{
     translation = [0.0, 0.0, 0.0];
   }
 
   // look up uniform locations
   var matrixLocation = gl.getUniformLocation(program, "u_matrix");
-  console.log(positionAttributeLocation)
   // Create a vertex array object (attribute state)
   var vao = gl.createVertexArray();
 
@@ -123,27 +123,34 @@ function mainTexture(canvasNUM = "#canvas2") {
   gl.vertexAttribPointer(
       texcoordAttributeLocation, size, type, normalize, stride, offset);
 
+  var texture2 = gl.createTexture();
+  gl.activeTexture(gl.TEXTURE1);
+  gl.bindTexture(gl.TEXTURE_2D, texture2);
+  image2.addEventListener('load', function() {
+  // Now that the image has loaded make copy it to the texture.
+    gl.bindTexture(gl.TEXTURE_2D, texture2);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image2);
+    gl.generateMipmap(gl.TEXTURE_2D);
+  });
+      
   // Create a texture.
   var texture = gl.createTexture();
-
-  // use texture unit 0
-  gl.activeTexture(gl.TEXTURE0 + 0);
-
-  // bind to the TEXTURE_2D bind point of texture unit 0
+  gl.activeTexture(gl.TEXTURE0);
   gl.bindTexture(gl.TEXTURE_2D, texture);
-
-  // Fill the texture with a 1x1 blue pixel.
-  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
-                new Uint8Array([0, 0, 255, 255]));
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
 
   // Asynchronously load an image
   image.addEventListener('load', function() {
     // Now that the image has loaded make copy it to the texture.
-    gl.bindTexture(gl.TEXTURE_2D, texture);
+    //gl.bindTexture(gl.TEXTURE_2D, texture);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
     gl.generateMipmap(gl.TEXTURE_2D);
   });
+
+
+  // Fill the texture with a 1x1 blue pixel.
+  //gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
+  //              new Uint8Array([0, 0, 255, 255]));
+  //gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
 
   function degToRad(d) {
     return d * Math.PI / 180;
@@ -171,7 +178,6 @@ function mainTexture(canvasNUM = "#canvas2") {
     fieldOfViewRadians: fieldOfViewRadians,
     Near: zNear,
     Far: zFar,
-    TextureValue: true,
   }
   if(canvasNUM === "#canvas2")
     loadGUI(params);
@@ -217,6 +223,15 @@ function mainTexture(canvasNUM = "#canvas2") {
     var primitiveType = gl.TRIANGLES;
     var offset = 0;
     var count = 6 * 6;
+
+    if (canvasNUM == '#canvas2') {
+      if (textureValue == true) {
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+      } else {
+        gl.bindTexture(gl.TEXTURE_2D, texture2);
+      }
+    }
+    
     gl.drawArrays(primitiveType, offset, count);
 
     gl.uniform3f(translationLocation, translation[0], translation[1], translation[2]);
@@ -333,10 +348,11 @@ function setTexcoords(gl) {
 }
 
 var gui = new dat.GUI();
-var numShopColor = -2;
+var numShop = -2;
+var textureValue = true;
 
 function buyTexture() {
-  numShopColor += 1;
+  numShop += 1;
   mainTexture("#canvas3");
 }
 

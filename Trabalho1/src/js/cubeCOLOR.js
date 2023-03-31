@@ -311,6 +311,8 @@ async function main(canvasNUM = "#canvas") {
   function render(time) {
     time *= 0.001;  // convert to seconds
 
+    time = time % 4;
+
     twgl.resizeCanvasToDisplaySize(gl.canvas);
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
     gl.enable(gl.DEPTH_TEST);
@@ -321,6 +323,17 @@ async function main(canvasNUM = "#canvas") {
 
     const up = [0, 1, 0];
     // Compute the camera's matrix using look at.
+
+    if(canvasNUM === "#canvas" && time < 3.8){
+      //var point = curveCAM(p0, p1, p2, p3, time);
+
+      var funcReturn = curveCAM(p0, p1, p2, p3, time/2);
+
+      cameraPosition[0] = funcReturn.x;
+      cameraPosition[1] = funcReturn.y;
+      console.log(time);
+    }
+
     const camera = m4.lookAt(cameraPosition, cameraTarget, up);
 
     // Make a view matrix from the camera matrix.
@@ -339,9 +352,10 @@ async function main(canvasNUM = "#canvas") {
 
     // compute the world matrix once since all parts
     // are at the same space.
-    let u_world = m4.yRotation(time);
-    
-    u_world = m4.translate(u_world, ...objOffset);
+    let u_world = m4.yRotation(0);
+
+    //if(canvasNUM != "#canvas")
+      //u_world = m4.translate(u_world, ...objOffset);
     
     /*
     if(canvasNUM != "#canvas"){
@@ -367,6 +381,18 @@ async function main(canvasNUM = "#canvas") {
     requestAnimationFrame(render);
   }
   requestAnimationFrame(render);
+}
+
+var p0 = { x: 0, y: 0 };
+var p1 = { x: 1, y: 0 };
+var p2 = { x: 5, y: 0 };
+var p3 = { x: 5, y: 0 };
+
+function curveCAM(p0, p1, p2, p3, t) {
+  var x = Math.pow(1 - t, 3) * p0.x + 3 * Math.pow(1 - t, 2) * t * p1.x + 3 * (1 - t) * Math.pow(t, 2) * p2.x + Math.pow(t, 3) * p3.x;
+  var y = Math.pow(1 - t, 3) * p0.y + 3 * Math.pow(1 - t, 2) * t * p1.y + 3 * (1 - t) * Math.pow(t, 2) * p2.y + Math.pow(t, 3) * p3.y;
+
+  return { x: x, y: y };
 }
 
 var gui = new dat.GUI();

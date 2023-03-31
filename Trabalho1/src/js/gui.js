@@ -45,12 +45,15 @@ const loadGUI = (params) => {
   );
 
   var textureChange = { ChangeTexture:function(){ 
-    params.TextureValue = !params.TextureValue;
-    if(params.TextureValue == true){
-      image.src = "obj/Exodius.png";
-    }else{
-      image.src = "obj/TNT_Block.png";
-    }}}
+    textureValue = !textureValue;
+    //console.log(textureValue)
+    //if(params.TextureValue == true){
+    //  image.src = "obj/Exodius.png";
+    //}else{
+    //  image.src = "obj/TNT_Block.png";
+    //}
+    }
+  }
 
   params.gui.add(textureChange,'ChangeTexture').name('Change Texture');
 }
