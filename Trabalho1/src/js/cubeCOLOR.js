@@ -308,8 +308,11 @@ async function main(canvasNUM = "#canvas") {
   if(canvasNUM != "#canvas"){
   var translation = [-5, 0.0, 0.0];
   }
+
+  var time2 = 0.1;
   function render(time) {
     time *= 0.001;  // convert to seconds
+    time2 = time;
 
     time = time % 4;
 
@@ -351,16 +354,12 @@ async function main(canvasNUM = "#canvas") {
 
     // compute the world matrix once since all parts
     // are at the same space.
-    let u_world = m4.yRotation(0);
+    let u_world = m4.yRotation(time2);
 
-    //if(canvasNUM != "#canvas")
-      //u_world = m4.translate(u_world, ...objOffset);
-    
-    /*
     if(canvasNUM != "#canvas"){
-      u_world[12] = numShop;
+      u_world = m4.translate(u_world, ...objOffset);
+      //u_world[12] = numShop;
     }
-    */
 
     for (const {bufferInfo, vao, material} of parts) {
       // set the attributes for this part.
