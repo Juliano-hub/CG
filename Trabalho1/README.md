@@ -8,7 +8,7 @@ Deve ter controles para animar os objetos:
 - [x] O usuário pode clicar no menu e trocar a textura e cor.
 
 - [x] Todos os objetos que o usuário comprar devem aparecer numa visão única, por exemplo, se for uma loja de carros todos os carros comprados devem aparecer dentro de uma garagem ou pátio que representa o carrinho de compras.
-- [] O menu principal de navegação da página deve usar WebGL, mas não precisa ser 3D.
+- [ ] O menu principal de navegação da página deve usar WebGL, mas não precisa ser 3D.
 - [x] O fundo da página deve ser uma animação em WebGL.
 
 ## Requisitos
