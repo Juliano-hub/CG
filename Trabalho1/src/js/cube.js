@@ -191,7 +191,6 @@ function mainTexture(canvasNUM = "#canvas2") {
   if(canvasNUM === "#canvas2")
     loadGUI(params);
 
-  var numObjectsInCanvas3 = 0;
 
   function render() {
     webglUtils.resizeCanvasToDisplaySize(gl.canvas);
@@ -235,44 +234,11 @@ function mainTexture(canvasNUM = "#canvas2") {
 
     if (canvasNUM == '#canvas2') {
       if (textureValue == true) {
-        //gl.activeTexture(gl.TEXTURE0);
-        //texture3 = texture;
         gl.bindTexture(gl.TEXTURE_2D, texture);
-        //console.log(gl.getParameter(gl.ACTIVE_TEXTURE))
       } else {
-        //gl.activeTexture(gl.TEXTURE1);
-        //texture3 = texture2;
         gl.bindTexture(gl.TEXTURE_2D, texture2);
-        //console.log(gl.getParameter(gl.ACTIVE_TEXTURE))
       }
     }
-
-    /*
-    if (canvasNUM == '#canvas3') {
-      console.log('comeco loop----------------------')
-        if (numObjectsInCanvas3 < textureList.length) {
-          console.log('Atual:' + numObjectsInCanvas3)
-          gl.bindTexture(gl.TEXTURE_2D, textureList[numObjectsInCanvas3]);
-          numObjectsInCanvas3++;
-        } else if (numObjectsInCanvas3 == textureList.length){
-          numObjectsInCanvas3 = 0;
-        }
-    }
-    */
-    /*
-    if (canvasNUM == '#canvas3') {
-        if (numObjectsInCanvas3 === textureList.length) {
-          
-          //gl.bindTexture(gl.TEXTURE_2D, textureList[numObjectsInCanvas3-1]);
-
-        } else if (numObjectsInCanvas3 > textureList.length){
-          numObjectsInCanvas3 = 0;
-        } else if(numObjectsInCanvas3 < textureList.length){
-          numObjectsInCanvas3++;
-        }
-    }
-    */
-
     gl.drawArrays(primitiveType, offset, count);
 
     gl.uniform3f(translationLocation, translation[0], translation[1], translation[2]);
@@ -669,7 +635,6 @@ function mainTexture2(canvasNUM = "#canvas3") {
 
     // Tell it to use our program (pair of shaders)
     gl.useProgram(program);
-    
 
     // Compute the matrix
     var aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
