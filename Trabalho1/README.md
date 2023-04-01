@@ -1,5 +1,5 @@
 # Tarefas
-- [x] Todos os objetos devem ser desenhados com WebGL em 3D.
+- [x] Todos os objetos devem ser desenhados com WebGL em 3D. <br />
 Deve ter controles para animar os objetos:
 - [x] Rotação.
 - [x] Zoom.
