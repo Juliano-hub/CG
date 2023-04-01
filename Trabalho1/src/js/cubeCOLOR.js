@@ -155,11 +155,12 @@ function mainColor(canvasNUM = "#canvas"){
         // Set the matrix.
         gl.uniformMatrix4fv(matrixLocation, false, matrix);
 
-        //console.log(params.newColor)
-        //gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
-        //   new Uint8Array([0, 0, 255, 1]));
-        //gl.bindTexture(gl.TEXTURE_2D, texture);
-        //gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([params.newColor[0], params.newColor[1], params.newColor[2], 255]));
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+
+        // Fill the texture with new color
+         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
+                new Uint8Array([0, 255, 255, 255]));
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
 
         // Draw the geometry.
         var primitiveType = gl.TRIANGLES;
