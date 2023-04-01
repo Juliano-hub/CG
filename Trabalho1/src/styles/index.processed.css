@@ -18,6 +18,9 @@ canvas {
   height: 70vh;
   display: block;
   margin-left: 0%;
+  background-image: url('utils/magicpattern-am-yg8wLLIo-unsplash.jpg');
+  background-size: cover;
+  background-position: center;
 }
 
 #customCARD{
@@ -26,6 +29,12 @@ canvas {
   width: 27vw;
   border-radius: 15px;
   background-color: grey;
+}
+
+backgroundCanvas, canvas {
+  background-image: url('utils/milad-fakurian-PpgY7sjpf_0-unsplash.jpg');
+  background-size: cover;
+  background-position: center;
 }
 
 #background {

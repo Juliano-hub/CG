@@ -216,7 +216,7 @@ function mainColor2(canvasNUM = "#canvas3"){
   var positionAttributeLocation = gl.getAttribLocation(program, "a_position");
   var texcoordAttributeLocation = gl.getAttribLocation(program, "a_texcoord");
   var translationLocation2 = gl.getUniformLocation(program, "u_translation");
-  var translation2 = [-0.4, -numShop, 1];
+  var translation2 = [-0.4, -numShop-2, 1];
 
   // look up uniform locations
   var matrixLocation = gl.getUniformLocation(program, "u_matrix");
