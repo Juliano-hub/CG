@@ -304,9 +304,12 @@ async function main(canvasNUM = "#canvas") {
     loadGUIColor(params);
 
   var translationLocation = gl.getUniformLocation(meshProgramInfo.program, "u_translation");
-  var translation = [0, 0.0, 0.0];
-  if(canvasNUM != "#canvas"){
-  var translation = [-5, 0.0, 0.0];
+  var translation2 = []
+
+  if(canvasNUM === "#canvas3"){
+    translation2 = [-5, 0.0, 0.0];
+  }else{
+    translation2 = [0, 0.0, 0.0];
   }
 
   var time2 = 0.1;
@@ -373,7 +376,7 @@ async function main(canvasNUM = "#canvas") {
       twgl.drawBufferInfo(gl, bufferInfo);
     }
 
-    gl.uniform3f(translationLocation, translation[0], translation[1], translation[2]);
+    gl.uniform3f(translationLocation, translation2[0], translation2[1], translation2[2]);
     gl.useProgram(meshProgramInfo.program);
 
     requestAnimationFrame(render);
