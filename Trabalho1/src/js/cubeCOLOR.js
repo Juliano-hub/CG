@@ -1,407 +1,342 @@
-"use strict";
-
-// This is not a full obj parser.
-// see http://paulbourke.net/dataformats/obj/
-
-function parseOBJ(text) {
-  // because indices are base 1 let's just fill in the 0th data
-  const objPositions = [[0, 0, 0]];
-  const objTexcoords = [[0, 0]];
-  const objNormals = [[0, 0, 0]];
-
-  // same order as `f` indices
-  const objVertexData = [
-    objPositions,
-    objTexcoords,
-    objNormals,
-  ];
-
-  // same order as `f` indices
-  let webglVertexData = [
-    [],   // positions
-    [],   // texcoords
-    [],   // normals
-  ];
-
-  const materialLibs = [];
-  const geometries = [];
-  let geometry;
-  let groups = ['default'];
-  let material = 'default';
-  let object = 'default';
-
-  const noop = () => {};
-
-  function newGeometry() {
-    // If there is an existing geometry and it's
-    // not empty then start a new one.
-    if (geometry && geometry.data.position.length) {
-      geometry = undefined;
-    }
-  }
-
-  function setGeometry() {
-    if (!geometry) {
-      const position = [];
-      const texcoord = [];
-      const normal = [];
-      webglVertexData = [
-        position,
-        texcoord,
-        normal,
-      ];
-      geometry = {
-        object,
-        groups,
-        material,
-        data: {
-          position,
-          texcoord,
-          normal,
-        },
-      };
-      geometries.push(geometry);
-    }
-  }
-
-  function addVertex(vert) {
-    const ptn = vert.split('/');
-    ptn.forEach((objIndexStr, i) => {
-      if (!objIndexStr) {
-        return;
-      }
-      const objIndex = parseInt(objIndexStr);
-      const index = objIndex + (objIndex >= 0 ? 0 : objVertexData[i].length);
-      //console.log(objVertexData[i])
-
-
-      webglVertexData[i].push(...objVertexData[i][index]);
-    });
-  }
-
-  const keywords = {
-    v(parts) {
-      objPositions.push(parts.map(parseFloat));
-    },
-    vn(parts) {
-      objNormals.push(parts.map(parseFloat));
-    },
-    vt(parts) {
-      // should check for missing v and extra w?
-      objTexcoords.push(parts.map(parseFloat));
-    },
-    f(parts) {
-      setGeometry();
-      const numTriangles = parts.length - 2;
-      for (let tri = 0; tri < numTriangles; ++tri) {
-        addVertex(parts[0]);
-        addVertex(parts[tri + 1]);
-        addVertex(parts[tri + 2]);
-      }
-    },
-    s: noop,    // smoothing group
-    mtllib(parts, unparsedArgs) {
-      // the spec says there can be multiple filenames here
-      // but many exist with spaces in a single filename
-      materialLibs.push(unparsedArgs);
-    },
-    usemtl(parts, unparsedArgs) {
-      material = unparsedArgs;
-      newGeometry();
-    },
-    g(parts) {
-      groups = parts;
-      newGeometry();
-    },
-    o(parts, unparsedArgs) {
-      object = unparsedArgs;
-      newGeometry();
-    },
-  };
-
-  const keywordRE = /(\w*)(?: )*(.*)/;
-  const lines = text.split('\n');
-  for (let lineNo = 0; lineNo < lines.length; ++lineNo) {
-    const line = lines[lineNo].trim();
-    if (line === '' || line.startsWith('#')) {
-      continue;
-    }
-    const m = keywordRE.exec(line);
-    if (!m) {
-      continue;
-    }
-    const [, keyword, unparsedArgs] = m;
-    const parts = line.split(/\s+/).slice(1);
-    const handler = keywords[keyword];
-    if (!handler) {
-      console.warn('unhandled keyword:', keyword);  // eslint-disable-line no-console
-      continue;
-    }
-    handler(parts, unparsedArgs);
-  }
-
-  // remove any arrays that have no entries.
-  for (const geometry of geometries) {
-    geometry.data = Object.fromEntries(
-        Object.entries(geometry.data).filter(([, array]) => array.length > 0));
-  }
-
-  return {
-    geometries,
-    materialLibs,
-  };
-}
-
-async function main(canvasNUM = "#canvas") {
-  // Get A WebGL context
+function mainColor(canvasNUM = "#canvas"){
+    // Get A WebGL context
   /** @type {HTMLCanvasElement} */
-  const canvas = document.querySelector(canvasNUM);
-  const gl = canvas.getContext("webgl2");
+  var canvas = document.querySelector("#canvas");
+
+  var gl = canvas.getContext("webgl2");
   if (!gl) {
     return;
   }
 
-  // Tell the twgl to match position with a_position etc..
-  twgl.setAttributePrefix("a_");
+  // Use our boilerplate utils to compile the shaders and link into a program
+  var program = webglUtils.createProgramFromSources(gl,
+      [vertexShaderSource, fragmentShaderSource]);
 
-  const vs = `#version 300 es
-  in vec4 a_position;
-  in vec3 a_normal;
-  uniform mat4 u_projection;
-  uniform mat4 u_view;
-  uniform mat4 u_world;
-  out vec3 v_normal;
-  uniform vec3 u_translation;
-  void main() {
-    gl_Position = u_projection * u_view * u_world * a_position + vec4(u_translation, 0.0);
-    v_normal = mat3(u_world) * a_normal;
-  }
-  `;
+  // look up where the vertex data needs to go.
+  var positionAttributeLocation = gl.getAttribLocation(program, "a_position");
+  var texcoordAttributeLocation = gl.getAttribLocation(program, "a_texcoord");
 
-  const fs = `#version 300 es
-  precision highp float;
-  in vec3 v_normal;
-  uniform vec4 u_diffuse;
-  uniform vec3 u_lightDirection;
-  out vec4 outColor;
-  void main () {
-    vec3 normal = normalize(v_normal);
-    float fakeLight = dot(u_lightDirection, normal) * .5 + .5;
-    outColor = vec4(u_diffuse.rgb * fakeLight, u_diffuse.a);
-  }
-  `;
+  // look up uniform locations
+  var matrixLocation = gl.getUniformLocation(program, "u_matrix");
 
-  // compiles and links the shaders, looks up attribute and uniform locations
-  const meshProgramInfo = twgl.createProgramInfo(gl, [vs, fs]);
+  // Create a vertex array object (attribute state)
+  var vao = gl.createVertexArray();
+  vaoArray2.push(vao);
 
-  const response = await fetch('obj/cube.obj');  
-  const text = await response.text();
+  // and make it the one we're currently working with
+  gl.bindVertexArray(vao);
+
+  // Create a buffer
+  var positionBuffer = gl.createBuffer();
+  positionBufferVector2.push(positionBuffer);
+  // Bind it to ARRAY_BUFFER (think of it as ARRAY_BUFFER = positionBuffer)
+  gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+  // Set Geometry.
+  setGeometry(gl);
+
+  // Turn on the attribute
+  gl.enableVertexAttribArray(positionAttributeLocation);
+
+  // Tell the attribute how to get data out of positionBuffer (ARRAY_BUFFER)
+  var size = 3;          // 3 components per iteration
+  var type = gl.FLOAT;   // the data is 32bit floats
+  var normalize = false; // don't normalize the data
+  var stride = 0;        // 0 = move forward size * sizeof(type) each iteration to get the next position
+  var offset = 0;        // start at the beginning of the buffer
+  gl.vertexAttribPointer(
+      positionAttributeLocation, size, type, normalize, stride, offset);
+
+  // create the texcoord buffer, make it the current ARRAY_BUFFER
+  // and copy in the texcoord values
+  var texcoordBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, texcoordBuffer);
+  setTexcoords(gl);
+
+  // Turn on the attribute
+  gl.enableVertexAttribArray(texcoordAttributeLocation);
+
+  // Tell the attribute how to get data out of texcoordBuffer (ARRAY_BUFFER)
+  var size = 2;          // 2 components per iteration
+  var type = gl.FLOAT;   // the data is 32bit floating point values
+  var normalize = true;  // convert from 0-255 to 0.0-1.0
+  var stride = 0;        // 0 = move forward size * sizeof(type) each iteration to get the next color
+  var offset = 0;        // start at the beginning of the buffer
+  gl.vertexAttribPointer(
+      texcoordAttributeLocation, size, type, normalize, stride, offset);
+
+  // Create a texture.
+  var texture = gl.createTexture();
   
-  const obj = parseOBJ(text);
+  // use texture unit 0
+  gl.activeTexture(gl.TEXTURE0);
 
-  const parts = obj.geometries.map(({data}) => {
-    // Because data is just named arrays like this
-    //
-    // {
-    //   position: [...],
-    //   texcoord: [...],
-    //   normal: [...],
-    // }
-    //
-    // and because those names match the attributes in our vertex
-    // shader we can pass it directly into `createBufferInfoFromArrays`
-    // from the article "less code more fun".
+  // bind to the TEXTURE_2D bind point of texture unit 0
+  gl.bindTexture(gl.TEXTURE_2D, texture);
 
-    // create a buffer for each array by calling
-    // gl.createBuffer, gl.bindBuffer, gl.bufferData
-    const bufferInfo = twgl.createBufferInfoFromArrays(gl, data);
-    const vao = twgl.createVAOFromBufferInfo(gl, meshProgramInfo, bufferInfo);
-    return {
-      material: {
-        u_diffuse: [Math.random(), Math.random(), Math.random(), 1],
-      },
-      bufferInfo,
-      vao,
-    };
-  });
+  // Fill the texture with a 1x1 blue pixel.
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
+                new Uint8Array([0, 0, 255, 255]));
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
 
-  function getExtents(positions) {
-    const min = positions.slice(0, 3);
-    const max = positions.slice(0, 3);
-    for (let i = 3; i < positions.length; i += 3) {
-      for (let j = 0; j < 3; ++j) {
-        const v = positions[i + j];
-        min[j] = Math.min(v, min[j]);
-        max[j] = Math.max(v, max[j]);
-      }
-    }
-    return {min, max};
+  // Now that the image has loaded make copy it to the texture.
+  gl.bindTexture(gl.TEXTURE_2D, texture);
+  gl.generateMipmap(gl.TEXTURE_2D);
+
+  textureColor.push(texture);
+
+  function degToRad(d) {
+    return d * Math.PI / 180;
   }
 
-  function getGeometriesExtents(geometries) {
-    return geometries.reduce(({min, max}, {data}) => {
-      const minMax = getExtents(data.position);
-      return {
-        min: min.map((min, ndx) => Math.min(minMax.min[ndx], min)),
-        max: max.map((max, ndx) => Math.max(minMax.max[ndx], max)),
-      };
-    }, {
-      min: Array(3).fill(Number.POSITIVE_INFINITY),
-      max: Array(3).fill(Number.NEGATIVE_INFINITY),
-    });
-  }
+  var fieldOfViewRadians = degToRad(60);
+  var modelXRotationRadians = degToRad(0);
+  var modelYRotationRadians = degToRad(0);
 
-  const extents = getGeometriesExtents(obj.geometries);
-  //console.log(extents)
-  
-  // distances between cubes
-  if(canvasNUM != "#canvas") {
-    extents.max[1] = numShop*2.2;
-    extents.min[1] = numShop*2.2;
-  }
-
-  const range = m4.subtractVectors(extents.max, extents.min);
-  // amount to move the object so its center is at the origin
-
-  //range[1] = numShop;
-
-  const objOffset = m4.scaleVector(
-      m4.addVectors(
-        extents.min,
-        m4.scaleVector(range, 0.5)),
-      -1);
-  const cameraTarget = [0, 0, 0];
-  // figure out how far away to move the camera so we can likely
-  // see the object.
-
-  var radius = m4.length(range) * 1.2
-
-  if(canvasNUM != "#canvas") {
-    radius = m4.length(range) * 5;
-  }
-
-  const cameraPosition = m4.addVectors(cameraTarget, [
-    0,
-    0,
-    radius,
-  ]);
-
-  // Set zNear and zFar to something hopefully appropriate
-  // for the size of this object.
-  const zNear = radius / 100;
-  const zFar = radius * 3;
-
-  function degToRad(deg) {
-    return deg * Math.PI / 180;
-  }
-  
   var params = {
     gui: gui,
     newColor:  palette.color,
   }
-  
-  if(canvasNUM === "#canvas")
-    loadGUIColor(params);
 
-  var translationLocation = gl.getUniformLocation(meshProgramInfo.program, "u_translation");
-  var translation2 = []
+  loadGUIColor(params);
 
-  if(canvasNUM === "#canvas3"){
-    translation2 = [-5, 0.0, 0.0];
-  }else{
-    translation2 = [0, 0.0, 0.0];
-  }
-
-  var time2 = 0.1;
-  function render(time) {
-    time *= 0.001;  // convert to seconds
-    time2 = time;
-
-    time = time % 4;
-
-    twgl.resizeCanvasToDisplaySize(gl.canvas);
-    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-    gl.enable(gl.DEPTH_TEST);
-
-    const fieldOfViewRadians = degToRad(60);
-    const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
-    const projection = m4.perspective(fieldOfViewRadians, aspect, zNear, zFar);
-
-    const up = [0, 1, 0];
-    // Compute the camera's matrix using look at.
-
-    if(canvasNUM === "#canvas" && time < 3.8){
-      //var point = curveCAM(p0, p1, p2, p3, time);
-
-      var funcReturn = curveCAM(p0, p1, p2, p3, time/2);
-
-      cameraPosition[0] = funcReturn.x;
-      cameraPosition[1] = funcReturn.y;
-    }
-
-    const camera = m4.lookAt(cameraPosition, cameraTarget, up);
-
-    // Make a view matrix from the camera matrix.
-    const view = m4.inverse(camera);
-
-    const sharedUniforms = {
-      u_lightDirection: m4.normalize([-1, 3, 5]),
-      u_view: view,
-      u_projection: projection,
-    };
-
-    gl.useProgram(meshProgramInfo.program);
-
-    // calls gl.uniform
-    twgl.setUniforms(meshProgramInfo, sharedUniforms);
-
-    // compute the world matrix once since all parts
-    // are at the same space.
-    let u_world = m4.yRotation(time2);
-
-    if(canvasNUM != "#canvas"){
-      u_world = m4.translate(u_world, ...objOffset);
-      //u_world[12] = numShop;
-    }
-
-    for (const {bufferInfo, vao, material} of parts) {
-      // set the attributes for this part.
-      gl.bindVertexArray(vao);
-      // calls gl.uniform
-      twgl.setUniforms(meshProgramInfo, {
-        u_world,
-        u_diffuse: [...params.newColor],
-      });
-      // calls gl.drawArrays or gl.drawElements
-      twgl.drawBufferInfo(gl, bufferInfo);
-    }
-
-    gl.uniform3f(translationLocation, translation2[0], translation2[1], translation2[2]);
-    gl.useProgram(meshProgramInfo.program);
-
-    requestAnimationFrame(render);
-  }
   requestAnimationFrame(render);
+
+  // Draw the scene.
+  function render(time) {
+        time *= 0.001;  // convert to seconds
+
+        time = time % 4;
+
+        webglUtils.resizeCanvasToDisplaySize(gl.canvas);
+
+        // Tell WebGL how to convert from clip space to pixels
+        gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+
+        //modelYRotationRadians = funcReturn.x;
+        //modelXRotationRadians = funcReturn.y;
+
+        // turn on depth testing
+        gl.enable(gl.DEPTH_TEST);
+
+        // tell webgl to cull faces
+        gl.enable(gl.CULL_FACE);
+
+        // Tell it to use our program (pair of shaders)
+        gl.useProgram(program);
+
+        // Bind the attribute/buffer set we want.
+        gl.bindVertexArray(vao);
+
+        // Compute the matrix
+        var aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
+        var zNear = 1;
+        var zFar = 2000;
+        var projectionMatrix = m4.perspective(fieldOfViewRadians, aspect, zNear, zFar);
+
+        var cameraPosition = [0, 0, 2];
+        var funcReturn = curveCAM(p0, p1, p2, p3, time/2);
+        cameraPosition[0] = funcReturn.x;
+        cameraPosition[1] = funcReturn.y;
+
+        var up = [0, 1, 0];
+        var target = [0, 0, 0];
+
+        // Compute the camera's matrix using look at.
+        var cameraMatrix = m4.lookAt(cameraPosition, target, up);
+
+        // Make a view matrix from the camera matrix.
+        var viewMatrix = m4.inverse(cameraMatrix);
+
+        var viewProjectionMatrix = m4.multiply(projectionMatrix, viewMatrix);
+
+        var matrix = m4.xRotate(viewProjectionMatrix, modelXRotationRadians);
+        matrix = m4.yRotate(matrix, modelYRotationRadians);
+
+        // Set the matrix.
+        gl.uniformMatrix4fv(matrixLocation, false, matrix);
+
+        //console.log(params.newColor)
+        //gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
+        //   new Uint8Array([0, 0, 255, 1]));
+        //gl.bindTexture(gl.TEXTURE_2D, texture);
+        //gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([params.newColor[0], params.newColor[1], params.newColor[2], 255]));
+
+        // Draw the geometry.
+        var primitiveType = gl.TRIANGLES;
+        var offset = 0;
+        var count = 6 * 6;
+        gl.drawArrays(primitiveType, offset, count);
+
+        // Call drawScene again next frame
+        requestAnimationFrame(render);
+  }
+    requestAnimationFrame(render);
 }
 
 var p0 = { x: 0, y: 0 };
 var p1 = { x: 1, y: 0 };
 var p2 = { x: 5, y: 0 };
 var p3 = { x: 5, y: 0 };
-
+  
 function curveCAM(p0, p1, p2, p3, t) {
-  var x = Math.pow(1 - t, 3) * p0.x + 3 * Math.pow(1 - t, 2) * t * p1.x + 3 * (1 - t) * Math.pow(t, 2) * p2.x + Math.pow(t, 3) * p3.x;
-  var y = Math.pow(1 - t, 3) * p0.y + 3 * Math.pow(1 - t, 2) * t * p1.y + 3 * (1 - t) * Math.pow(t, 2) * p2.y + Math.pow(t, 3) * p3.y;
-
-  return { x: x, y: y };
+    var x = Math.pow(1 - t, 3) * p0.x + 3 * Math.pow(1 - t, 2) * t * p1.x + 3 * (1 - t) * Math.pow(t, 2) * p2.x + Math.pow(t, 3) * p3.x;
+    var y = Math.pow(1 - t, 3) * p0.y + 3 * Math.pow(1 - t, 2) * t * p1.y + 3 * (1 - t) * Math.pow(t, 2) * p2.y + Math.pow(t, 3) * p3.y;
+  
+    return { x: x, y: y };
 }
 
-var gui = new dat.GUI();
 var numShop = -4;
+var vaoArray2 = [];
+var positionBufferVector2 = [];
+var textureColor = [];
 
 function buyColor() {
-  numShop += 1;
-  main("#canvas3");
+    numShop += 1;
+    mainColor2("#canvas3");
 }
 
-main();
+function mainColor2(canvasNUM = "#canvas3"){
+  // Get A WebGL context
+  /** @type {HTMLCanvasElement} */
+  var canvas = document.querySelector(canvasNUM);
+
+  var gl = canvas.getContext("webgl2");
+  if (!gl) {
+    return;
+  }
+
+  // Use our boilerplate utils to compile the shaders and link into a program
+  var program = webglUtils.createProgramFromSources(gl,
+      [vertexShaderSource, fragmentShaderSource]);
+
+  // look up where the vertex data needs to go.
+  var positionAttributeLocation = gl.getAttribLocation(program, "a_position");
+  var texcoordAttributeLocation = gl.getAttribLocation(program, "a_texcoord");
+  var translationLocation = gl.getUniformLocation(program, "u_translation");
+  var translation = [-0.8, -numShop, 1];
+
+  // look up uniform locations
+  var matrixLocation = gl.getUniformLocation(program, "u_matrix");
+  // Create a vertex array object (attribute state)
+  var vao = gl.createVertexArray();
+  vaoArray2.push(vao);
+
+  // and make it the one we're currently working with
+  gl.bindVertexArray(vaoArray2[(numShop+4)]);
+
+  // Create a buffer
+  var positionBuffer = gl.createBuffer();
+  positionBufferVector2.push(positionBuffer);
+  // Bind it to ARRAY_BUFFER (think of it as ARRAY_BUFFER = positionBuffer)
+  gl.bindBuffer(gl.ARRAY_BUFFER, positionBufferVector2[(numShop+4)]);
+  //gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
+
+  // Set Geometry.
+  setGeometry(gl);
+
+  // Turn on the attribute
+  gl.enableVertexAttribArray(positionAttributeLocation);
+
+  // Asynchronously load an image
+  gl.activeTexture(gl.TEXTURE0);
+  gl.bindTexture(gl.TEXTURE_2D, textureColor[(numShop+4)]);
+
+  // Tell the attribute how to get data out of positionBuffer (ARRAY_BUFFER)
+  var size = 3;          // 3 components per iteration
+  var type = gl.FLOAT;   // the data is 32bit floats
+  var normalize = false; // don't normalize the data
+  var stride = 0;        // 0 = move forward size * sizeof(type) each iteration to get the next position
+  var offset = 0;        // start at the beginning of the buffer
+  gl.vertexAttribPointer(
+      positionAttributeLocation, size, type, normalize, stride, offset);
+
+  // create the texcoord buffer, make it the current ARRAY_BUFFER
+  // and copy in the texcoord values
+  var texcoordBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, texcoordBuffer);
+  setTexcoords(gl);
+
+  // Turn on the attribute
+  gl.enableVertexAttribArray(texcoordAttributeLocation);
+  gl.bindBuffer(gl.ARRAY_BUFFER, texcoordBuffer);
+  gl.vertexAttribPointer(texcoordAttributeLocation, 2, gl.FLOAT, false, 0, 0);
+
+  //textureList.push(texture);
+
+  // Fill the texture with a 1x1 blue pixel.
+  //gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
+  //              new Uint8Array([0, 0, 255, 255]));
+  //gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+
+  function degToRad(d) {
+    return d * Math.PI / 180;
+  }
+
+  var fieldOfViewRadians = degToRad(120);
+  var modelXRotationRadians = degToRad(0);
+  var modelYRotationRadians = degToRad(-5);
+
+  var zNear = 1;
+  var zFar = 3;
+
+  var cameraPosition = [0, 0, 2];
+  var up = [0, 1, 0];
+  var target = [0, 0, 0];
+
+
+  function render(time) {
+    time *= 0.001;  // convert to seconds
+
+    time = time % 4;
+
+    webglUtils.resizeCanvasToDisplaySize(gl.canvas);
+
+    // Tell WebGL how to convert from clip space to pixels
+    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+
+    // turn on depth testing
+    gl.enable(gl.DEPTH_TEST);
+
+    // tell webgl to cull faces
+    gl.enable(gl.CULL_FACE);
+
+    // Tell it to use our program (pair of shaders)
+    gl.useProgram(program);
+
+    // Compute the matrix
+    var aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
+
+    var projectionMatrix = m4.perspective(fieldOfViewRadians, aspect, zNear, zFar);
+
+    // Compute the camera's matrix using look at.
+    var cameraMatrix = m4.lookAt(cameraPosition, target, up);
+
+    // Make a view matrix from the camera matrix.
+    var viewMatrix = m4.inverse(cameraMatrix);
+
+    var viewProjectionMatrix = m4.multiply(projectionMatrix, viewMatrix);
+
+    var matrix = m4.xRotate(viewProjectionMatrix, modelXRotationRadians);
+    matrix = m4.yRotate(matrix, modelYRotationRadians);
+
+    // Set the matrix.
+    gl.uniformMatrix4fv(matrixLocation, false, matrix);
+
+    // Draw the geometry.
+    var primitiveType = gl.TRIANGLES;
+    var offset = 0;
+    var count = 6 * 6;
+
+    gl.bindTexture(gl.TEXTURE_2D, textureColor[numShop+4]);
+
+    gl.drawArrays(primitiveType, offset, count);
+
+    gl.uniform3f(translationLocation, translation[0], translation[1], translation[2]);
+
+    // Call render again next frame
+    requestAnimationFrame(render);
+  }
+  requestAnimationFrame(render);
+}
+  
+mainColor();
