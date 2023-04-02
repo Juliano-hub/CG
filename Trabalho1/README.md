@@ -24,12 +24,14 @@ Deve ter controles para animar os objetos:
 
 Para rodar o trabalho entre na pasta do projeto e rode no terminal npx live-server. Ou extensão live server do VS Code.
 
-## Código fonte utilizados como base
+## Código fonte e materiais utilizados como base
 https://webgl2fundamentals.org/webgl/lessons/webgl-3d-textures.html
 
 https://webgl2fundamentals.org/webgl/lessons/webgl-load-obj.html
 
 https://webgl2fundamentals.org/webgl/lessons/webgl-tips.html#html-background
+
+https://morethandev.hashnode.dev/demystifying-the-cubic-bezier-function-ft-javascript
 
 ## Fonte das texturas utilizadas
 "TNT" (https://skfb.ly/ouuwJ) by ApixCraft is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).

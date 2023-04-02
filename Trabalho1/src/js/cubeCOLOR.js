@@ -1,4 +1,4 @@
-function mainColor(canvasNUM = "#canvas"){
+function mainColor(){
     // Get A WebGL context
   /** @type {HTMLCanvasElement} */
   var canvas = document.querySelector("#canvas");
@@ -180,8 +180,17 @@ var p2 = { x: 5, y: 0 };
 var p3 = { x: 5, y: 0 };
   
 function curveCAM(p0, p1, p2, p3, t) {
-    var x = Math.pow(1 - t, 3) * p0.x + 3 * Math.pow(1 - t, 2) * t * p1.x + 3 * (1 - t) * Math.pow(t, 2) * p2.x + Math.pow(t, 3) * p3.x;
-    var y = Math.pow(1 - t, 3) * p0.y + 3 * Math.pow(1 - t, 2) * t * p1.y + 3 * (1 - t) * Math.pow(t, 2) * p2.y + Math.pow(t, 3) * p3.y;
+    var x = 
+   (1 - t) * (1 - t) * (1 - t) * p0.x + 
+    3 * (1 - t) * (1 - t) * t * p1.x + 
+    3 * (1 - t) * t * t * p2.x + 
+    t * t * t * p3.x;
+
+    var y =
+    (1 - t) * (1 - t) * (1 - t) * p0.y + 
+    3 * (1 - t) * (1 - t) * t * p1.y + 
+    3 * (1 - t) * t * t * p2.y + 
+    t * t * t * p3.y;
   
     return { x: x, y: y };
 }
@@ -195,10 +204,10 @@ var vectorColor = [];
 function buyColor() {
     numShop += 1;
     vectorColor.push({...palette.color})
-    mainColor2("#canvas3");
+    colorCart();
 }
 
-function mainColor2(canvasNUM = "#canvas3"){
+function colorCart(){
     // Get A WebGL context
   /** @type {HTMLCanvasElement} */
   var canvas = document.querySelector("#canvas3");
