@@ -200,7 +200,7 @@ var vaoArray2 = [];
 var positionBufferVector2 = [];
 var textureColor = [];
 var vectorColor = [];
-
+var varZoomCanvas3 = 3;
 function buyColor() {
     numShop += 1;
     vectorColor.push({...palette.color})
@@ -208,6 +208,7 @@ function buyColor() {
 }
 
 function colorCart(){
+  varZoomCanvas3 = varZoomCanvas3 + 0.5;
     // Get A WebGL context
   /** @type {HTMLCanvasElement} */
   var canvas = document.querySelector("#canvas3");
@@ -300,7 +301,7 @@ function colorCart(){
     return d * Math.PI / 180;
   }
 
-  var fieldOfViewRadians = degToRad(120);
+  var fieldOfViewRadians = degToRad(100);
   var modelXRotationRadians = degToRad(0);
   var modelYRotationRadians = degToRad(0);
 
@@ -335,7 +336,7 @@ function colorCart(){
         var zFar = 2000;
         var projectionMatrix = m4.perspective(fieldOfViewRadians, aspect, zNear, zFar);
 
-        var cameraPosition = [0, 0, 2];
+        var cameraPosition = [0, 0, varZoomCanvas3];
         var up = [0, 1, 0];
         var target = [0, 0, 0];
 

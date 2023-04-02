@@ -36,6 +36,8 @@ https://morethandev.hashnode.dev/demystifying-the-cubic-bezier-function-ft-javas
 ## Fonte das texturas utilizadas
 "TNT" (https://skfb.ly/ouuwJ) by ApixCraft is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).
 
+"Fã Crash Interrogation Box" (https://skfb.ly/oEyGG) by Adrianinhu10 is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).
+
 ## Fonte das imagens utilizadas
 Foto de <a href="https://unsplash.com/@magicpattern?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">MagicPattern</a> na <a href="https://unsplash.com/pt-br/fotografias/am-yg8wLLIo?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">Unsplash</a>
 

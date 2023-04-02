@@ -45,13 +45,13 @@ const loadGUI = (params) => {
   );
 
   var textureChange = { ChangeTexture:function(){ 
-    textureValue = !textureValue;
-    //console.log(textureValue)
-    //if(params.TextureValue == true){
-    //  image.src = "obj/Exodius.png";
-    //}else{
-    //  image.src = "obj/TNT_Block.png";
-    //}
+    console.log(textureValue)
+    if(textureValue == numTotalTexture){
+      textureValue = 0;
+    }else{
+      textureValue += 1;
+    }
+
     }
   }
 

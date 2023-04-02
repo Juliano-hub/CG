@@ -38,6 +38,8 @@ function mainTexture() {
   image.src = "obj/TNT_Block.png";
   const image2 = new Image();
   image2.src = "obj/Exodius.png";
+  const image3 = new Image();
+  image3.src = "obj/Crash.png";
 
   // Get A WebGL context
   /** @type {HTMLCanvasElement} */
@@ -48,8 +50,9 @@ function mainTexture() {
     return;
   }
 
-  var texture2 = gl.createTexture();
   var texture = gl.createTexture();
+  var texture2 = gl.createTexture();
+  var texture3 = gl.createTexture();
 
   // Use our boilerplate utils to compile the shaders and link into a program
   var program = webglUtils.createProgramFromSources(gl,
@@ -88,6 +91,16 @@ function mainTexture() {
     // Now that the image has loaded make copy it to the texture.
       gl.bindTexture(gl.TEXTURE_2D, texture2);
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image2);
+      gl.generateMipmap(gl.TEXTURE_2D);
+    });
+
+    // Asynchronously load an image
+    gl.activeTexture(gl.TEXTURE2);
+    gl.bindTexture(gl.TEXTURE_2D, texture3);
+    image3.addEventListener('load', function() {
+      // Now that the image has loaded make copy it to the texture.
+      gl.bindTexture(gl.TEXTURE_2D, texture3);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image3);
       gl.generateMipmap(gl.TEXTURE_2D);
     });
 
@@ -197,10 +210,12 @@ function mainTexture() {
     var offset = 0;
     var count = 6 * 6;
 
-    if (textureValue == true) {
+    if (textureValue == 0) {
       gl.bindTexture(gl.TEXTURE_2D, texture);
-    } else {
+    } else if (textureValue == 1){
       gl.bindTexture(gl.TEXTURE_2D, texture2);
+    } else if (textureValue == 2){
+      gl.bindTexture(gl.TEXTURE_2D, texture3);
     }
 
     gl.drawArrays(primitiveType, offset, count);
@@ -320,24 +335,42 @@ function setTexcoords(gl) {
 
 var gui = new dat.GUI();
 var numShopT = -2;
-var textureValue = true;
 var textureList = [];
 var activateList = [];
 var vaoArray = [];
 var positionBufferVector = [];
+var textureValue = 0;
+var numTotalTexture = 3;
+var varZoomCanvas3 = 100;
 
 function buyTexture() {
   numShopT += 1;
 
-  if(textureValue == true){
-    textureCart("obj/TNT_Block.png");
-  }else{
-    textureCart("obj/Exodius.png");
+  textureCart(getTexture(textureValue))
+}
+
+function getTexture(textureValue){
+  var textureSrc;
+
+  switch (textureValue) {
+    case 0:
+      textureSrc = "obj/TNT_Block.png";
+    break;
+
+    case 1:
+      textureSrc = "obj/Exodius.png";
+    break;
+
+    case 2:
+      textureSrc = "obj/Crash.png";
+    break;
   }
+  return textureSrc;
 
 }
 
 function textureCart(imageSRC) {
+  varZoomCanvas3 = varZoomCanvas3 + 0.5;
   const image = new Image();
   image.src = imageSRC;
 
@@ -420,16 +453,9 @@ function textureCart(imageSRC) {
     return d * Math.PI / 180;
   }
 
-  var fieldOfViewRadians = degToRad(120);
+  var fieldOfViewRadians = degToRad(100);
   var modelXRotationRadians = degToRad(0);
-  var modelYRotationRadians = degToRad(-5);
-
-  var zNear = 1;
-  var zFar = 3;
-
-  var cameraPosition = [0, 0, 2];
-  var up = [0, 1, 0];
-  var target = [0, 0, 0];
+  var modelYRotationRadians = degToRad(0);
 
   function render() {
     webglUtils.resizeCanvasToDisplaySize(gl.canvas);
@@ -445,12 +471,18 @@ function textureCart(imageSRC) {
 
     // Tell it to use our program (pair of shaders)
     gl.useProgram(program);
-    
+
+    gl.bindVertexArray(vao);
 
     // Compute the matrix
     var aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
-
+    var zNear = 1;
+    var zFar = 2000;
     var projectionMatrix = m4.perspective(fieldOfViewRadians, aspect, zNear, zFar);
+
+    var cameraPosition = [0, 0, varZoomCanvas3];
+    var up = [0, 1, 0];
+    var target = [0, 0, 0];
 
     // Compute the camera's matrix using look at.
     var cameraMatrix = m4.lookAt(cameraPosition, target, up);
@@ -466,13 +498,12 @@ function textureCart(imageSRC) {
     // Set the matrix.
     gl.uniformMatrix4fv(matrixLocation, false, matrix);
 
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+
     // Draw the geometry.
     var primitiveType = gl.TRIANGLES;
     var offset = 0;
     var count = 6 * 6;
-
-    gl.bindTexture(gl.TEXTURE_2D, texture);
-
     gl.drawArrays(primitiveType, offset, count);
 
     gl.uniform3f(translationLocation, translation[0], translation[1], translation[2]);
