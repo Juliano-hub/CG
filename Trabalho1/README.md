@@ -1,4 +1,4 @@
-# Tarefas
+# Tarefas Webgl2
 - [x] Todos os objetos devem ser desenhados com WebGL em 3D. <br /> <br />
 
 Deve ter controles para animar os objetos:
