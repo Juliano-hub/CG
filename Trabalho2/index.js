@@ -109,10 +109,13 @@ function render() {
     && gl.getUniform(program, u_yObstacle) < (gl.getUniform(program, u_y)-6.5) 
     && gl.getUniform(program, u_xObstacle) > (gl.getUniform(program, u_x)-0.699)
     && gl.getUniform(program, u_xObstacle) < (gl.getUniform(program, u_x)+0.699)){
+        // se acertou o OBJ ele volta para cima o Y e randomiza o X
         obstacleDownY = 7.0;
+        gl.uniform1f(u_xObstacle,  Math.floor(Math.random() * 9) - 1);
         count += 1;
         console.log(count);
     }else{
+        // se não acertou o OBJ só desce ele para baixo
         obstacleDownY -= 0.1; 
         gl.uniform1f(u_yObstacle, obstacleDownY);
     }
@@ -133,8 +136,10 @@ function render() {
 
     gl.uniform1f(u_xPlataform, time);
 
-    if(obstacleDownY < -10.6){
+    // se o obj cair para baixo da tela ele é colocado para cima
+    if(obstacleDownY < -12){
         obstacleDownY = 7.0;
+        gl.uniform1f(u_xObstacle,  Math.floor(Math.random() * 9) - 1);
     }
 
     // movimentação do teclado
