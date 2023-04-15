@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Trabalho 2</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            background-color: #2a2938;
+        }
+
+        canvas {
+            width: 96vh;
+            height: 96vh;
+            border: 2px solid #df9943;
+        }
+    </style>
+
+</head>
+
+<body>
+    <p>Click space</p>
+    <canvas id="canvas"></canvas>
+    <script type="x-shader/x-vertex" id="vertexShader">
+        precision mediump float;
+        attribute vec3 a_position;
+        void main() {
+          gl_Position = vec4(a_position, 1.0);
+        }
+    </script>
+    <script type="x-shader/x-fragment" id="fragmentShader">
+        precision mediump float;
+        
+        uniform vec2 u_resolution;
+        uniform float u_time;
+        uniform vec3 u_sphereColor;
+        uniform vec3 u_cubeColor;
+        uniform vec3 u_obstacleColor;
+        uniform float u_y;
+        uniform float u_x;
+        uniform float u_xObstacle;
+        uniform float u_xPlataform;
+
+        vec3 backgroundColor = vec3(0.8509, 0.7451, 0.5059);
+
+        mat2 rotate(float a) {
+            float s = sin(a);
+            float c = cos(a);
+
+            return mat2(c, -s, s, c);
+        }
+
+        float sphereSDF(vec3 p, vec3 c, float r) {
+            return length(p - c) - r;
+        }
+
+        float cubeSDF(vec3 p, vec3 pCube, vec3 len) {
+            vec3 d = abs(vec3(p.x - pCube.x, p.y - pCube.y, p.z - pCube.z)) - len;
+            float insideDistance = min(max(d.x, max(d.y, d.z)), 0.0);
+            float outsideDistance = length(max(d, 0.0));
+            
+            return insideDistance + outsideDistance;
+        }        
+
+        float smoothMax(float a, float b, float k) {
+            return log(exp(k * a) + exp(k * b)) / k;
+        }
+        
+        float smoothMin(float a, float b, float k) {
+            return -smoothMax(-a, -b, k);
+        }
+                
+        
+        vec4 scene(vec3 p) {
+            vec3 u_lightPosition = vec3(0.0, 0.0, 2.0);
+            vec3 u_lightColor = vec3(1.0, 0.9176, 0.0);
+            float u_specular = 1.0;
+            float u_diffuse = 1.0;
+
+            vec3 bp = p;
+            
+            //dSphere = torusSDF(tp-vec3(0.0, 0.0, u_y), vec2(0.7, 0.2));
+            //dCube = cubeSDF(vec3(bp.x, bp.y+0.7, bp.z));
+
+
+            float dCube = cubeSDF(bp, vec3(u_xPlataform, -1.0, 0.0), vec3(1.0, 0.2, 0.5));
+            float dSphere = sphereSDF(p-vec3(u_x, u_y-0.5, 0.0), vec3(0.0), 0.7);
+            float mix_factor = dSphere / (dSphere + dCube);
+
+            float dObstacle = cubeSDF(p, vec3(u_xObstacle,5.0, 0.0), vec3(0.2, 0.2, 0.2));
+            
+            vec3 color = mix(
+                u_sphereColor,
+                u_cubeColor,
+                mix_factor
+            );
+  
+            mix_factor = mix_factor / (dObstacle + mix_factor);
+
+            color = mix(
+                color,
+                u_obstacleColor,
+                mix_factor 
+            );
+
+            return vec4(color, smoothMin(smoothMin(dCube, dSphere, 2.0), dObstacle, 8.0)); 
+        }
+        
+        vec3 raymarch(vec3 ro, vec3 rd) {
+            float t = 0.0;
+            float d = 0.0;
+            float j = 0.0;
+            vec4 sc;
+            vec3 color;
+            for (int i = 0; i < 100; i++) {
+                vec3 p = ro + rd * t;
+                sc = scene(p);
+                d = sc.w;
+                color = sc.xyz;
+                
+                t += d;
+                j += 0.015;
+                if (d < 0.001 || t > 100.0) {
+                    break;
+                }
+            }
+            if(t > 90.0) {
+                return backgroundColor; 
+            }
+            return color * ((1.0-j) - t / 100.0); 
+        }
+
+        
+
+        void main() {
+            vec2 uv = gl_FragCoord.xy / u_resolution.xy;
+            vec3 ro = vec3(3.0, 1.0, 10.0);
+            vec3 rd = normalize(vec3(uv.x - 0.5, uv.y -0.5, -1));
+            vec3 color = raymarch(ro, rd);
+            gl_FragColor = vec4(color, 1.0);
+        }
+    </script>
+    <script src="index.js"></script>
+</body>
+
+</html>
