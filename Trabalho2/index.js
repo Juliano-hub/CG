@@ -50,6 +50,8 @@ gl.uniform3f(cubeColor, 0.0, 0.0, 1.0); // azul
 const u_y = gl.getUniformLocation(program, 'u_y');
 const u_x = gl.getUniformLocation(program, 'u_x');
 const u_xPlataform = gl.getUniformLocation(program, 'u_xPlataform');
+const u_yObstacle = gl.getUniformLocation(program, 'u_yObstacle');
+const u_xObstacle =  gl.getUniformLocation(program, 'u_xObstacle');
 
 function fract(x) {
     return x - Math.floor(x);
@@ -68,6 +70,7 @@ var move = 0
 var vel = 0.2
 var time = 0
 var outplataformY = 0
+var obstacleDownY = 7.0;
 
 document.addEventListener("keydown", function (event) {
     //console.log(event.key)
@@ -99,6 +102,7 @@ document.addEventListener("keyup", function (event) {
 
 
 function render() {
+
     if (increment) {
         time += 0.01;
     if (time >= 7) {
@@ -112,31 +116,34 @@ function render() {
     }
 
     time_jump += 0.015;
-    
+    obstacleDownY -= 0.1; 
+
+    gl.uniform1f(u_yObstacle, obstacleDownY);
     gl.uniform1f(u_xPlataform, time);
 
+    if(obstacleDownY < -10.6){
+        obstacleDownY = 7.0;
+    }
+
+    // movimentação do teclado
     if(left){
         move -= 0.1;
     }else if(right){
         move += 0.1;
     }
     gl.uniform1f(u_x, move);
-    
+
+    // cálculo da altura do pulo
     let y = -10.0 * fract(time_jump*3) * (fract(time_jump*3) - 1.0);
 
-
-    //console.log('move:' + move)
-    //console.log('time:' + time)
     if (jumping) {
         gl.uniform1f(u_y, y);
     }
-    
-    
+
+    // cálculo para fazer a esfera cair caso sair da plataforma
     if(move > time + 2.2 || outplataformY < 0){
         outplataformY = outplataformY - 0.1;
         gl.uniform1f(u_y, outplataformY);
-        //console.log(move)
-        //console.log(time)
         //console.log('tá fora pela direita')
     }else if(move < time -2.2 || outplataformY < 0){
         //console.log('tá fora pela esq')
@@ -147,6 +154,11 @@ function render() {
     if (y <= 0.1) {
         jumping = false
     }
+
+     //console.log(gl.getUniform(program, u_yObstacle))
+    //console.log(gl.getUniform(program, u_y)-6.5)
+    if( gl.getUniform(program, u_yObstacle) > (gl.getUniform(program, u_y)-6.7) && gl.getUniform(program, u_yObstacle) < (gl.getUniform(program, u_y)-6.5) )
+        console.log('encostou');
 
     gl.uniform1f(timeUniformLocation, time);
 
