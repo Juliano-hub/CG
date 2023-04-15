@@ -64,13 +64,14 @@ var increment = false;
 
 const timeUniformLocation = gl.getUniformLocation(program, 'u_time');
 const random = gl.getUniformLocation(program, 'u_random');
-var time = 0
-var time_jump = 0
-var move = 0
-var vel = 0.2
-var time = 0
-var outplataformY = 0
+var time = 0;
+var time_jump = 0;
+var move = 0;
+var vel = 0.2;
+var time = 0;
+var outplataformY = 0;
 var obstacleDownY = 7.0;
+var count = 0;
 
 document.addEventListener("keydown", function (event) {
     //console.log(event.key)
@@ -103,6 +104,19 @@ document.addEventListener("keyup", function (event) {
 
 function render() {
 
+    //cálculos da hitbox do círculo
+    if( gl.getUniform(program, u_yObstacle) > (gl.getUniform(program, u_y)-6.7) 
+    && gl.getUniform(program, u_yObstacle) < (gl.getUniform(program, u_y)-6.5) 
+    && gl.getUniform(program, u_xObstacle) > (gl.getUniform(program, u_x)-0.699)
+    && gl.getUniform(program, u_xObstacle) < (gl.getUniform(program, u_x)+0.699)){
+        obstacleDownY = 7.0;
+        count += 1;
+        console.log(count);
+    }else{
+        obstacleDownY -= 0.1; 
+        gl.uniform1f(u_yObstacle, obstacleDownY);
+    }
+
     if (increment) {
         time += 0.01;
     if (time >= 7) {
@@ -116,9 +130,7 @@ function render() {
     }
 
     time_jump += 0.015;
-    obstacleDownY -= 0.1; 
 
-    gl.uniform1f(u_yObstacle, obstacleDownY);
     gl.uniform1f(u_xPlataform, time);
 
     if(obstacleDownY < -10.6){
@@ -154,11 +166,6 @@ function render() {
     if (y <= 0.1) {
         jumping = false
     }
-
-     //console.log(gl.getUniform(program, u_yObstacle))
-    //console.log(gl.getUniform(program, u_y)-6.5)
-    if( gl.getUniform(program, u_yObstacle) > (gl.getUniform(program, u_y)-6.7) && gl.getUniform(program, u_yObstacle) < (gl.getUniform(program, u_y)-6.5) )
-        console.log('encostou');
 
     gl.uniform1f(timeUniformLocation, time);
 
