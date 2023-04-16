@@ -45,8 +45,8 @@ const sphereColor = gl.getUniformLocation(program, 'u_sphereColor');
 const cubeColor = gl.getUniformLocation(program, 'u_cubeColor');
 const obstacleColor = gl.getUniformLocation(program, 'u_obstacleColor');
 
-gl.uniform3f(sphereColor, 1.0, 0.0, 0.0); // vermelho
-gl.uniform3f(obstacleColor, 0.0, 1.0, 0.0); // azul
+gl.uniform3f(sphereColor, 1.0, 0.0, 0.0);
+gl.uniform3f(obstacleColor, 0.0, 1.0, 10);
 
 const u_y = gl.getUniformLocation(program, 'u_y');
 const u_x = gl.getUniformLocation(program, 'u_x');
