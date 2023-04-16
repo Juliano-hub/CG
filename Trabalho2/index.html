@@ -4,23 +4,14 @@
 <head>
     <meta charset="utf-8">
     <title>Trabalho 2</title>
-    <style>
-        body {
-            display: flex;
-            justify-content: center;
-            background-color: #2a2938;
-        }
-
-        canvas {
-            width: 96vh;
-            height: 96vh;
-            border: 2px solid #df9943;
-        }
-    </style>
-
+    <link rel="stylesheet" href="index.css">
 </head>
 
 <body>
+    <div class="counter">
+        <div class="count">0</div>
+    </div>
+
     <canvas id="canvas"></canvas>
     <script type="x-shader/x-vertex" id="vertexShader">
         precision mediump float;

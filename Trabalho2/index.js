@@ -43,9 +43,10 @@ gl.uniform2f(resolutionUniformLocation, canvas.width, canvas.height);
 
 const sphereColor = gl.getUniformLocation(program, 'u_sphereColor');
 const cubeColor = gl.getUniformLocation(program, 'u_cubeColor');
+const obstacleColor = gl.getUniformLocation(program, 'u_obstacleColor');
 
 gl.uniform3f(sphereColor, 1.0, 0.0, 0.0); // vermelho
-gl.uniform3f(cubeColor, 0.0, 0.0, 1.0); // azul
+gl.uniform3f(obstacleColor, 0.0, 1.0, 0.0); // azul
 
 const u_y = gl.getUniformLocation(program, 'u_y');
 const u_x = gl.getUniformLocation(program, 'u_x');
@@ -71,11 +72,12 @@ var vel = 0.2;
 var time = 0;
 var outplataformY = 0;
 var obstacleDownY = 7.0;
-var count = 0;
+var sum = 0;
+const countElement = document.querySelector(".count");
 
 document.addEventListener("keydown", function (event) {
     //console.log(event.key)
-    if (event.key === ' ') { // Tecla espaço
+    if (event.key === ' ' && gl.getUniform(program, u_y) >= 0.0) { // Tecla espaço
         if (!jumping)
             time_jump = 0
         jumping = true
@@ -100,20 +102,14 @@ document.addEventListener("keyup", function (event) {
     }
 });
 
-
-
 function render() {
 
-    //cálculos da hitbox do círculo
-    if( gl.getUniform(program, u_yObstacle) > (gl.getUniform(program, u_y)-6.7) 
-    && gl.getUniform(program, u_yObstacle) < (gl.getUniform(program, u_y)-6.5) 
-    && gl.getUniform(program, u_xObstacle) > (gl.getUniform(program, u_x)-0.699)
-    && gl.getUniform(program, u_xObstacle) < (gl.getUniform(program, u_x)+0.699)){
+    if( checkHit(u_xObstacle, u_yObstacle) ){
         // se acertou o OBJ ele volta para cima o Y e randomiza o X
         obstacleDownY = 7.0;
         gl.uniform1f(u_xObstacle,  Math.floor(Math.random() * 9) - 1);
-        count += 1;
-        console.log(count);
+        sum += 1;
+        countElement.innerHTML = sum;
     }else{
         // se não acertou o OBJ só desce ele para baixo
         obstacleDownY -= 0.1; 
@@ -132,11 +128,13 @@ function render() {
       }
     }
 
+    gl.uniform3f(cubeColor, time, 1.0, 1.0); // azul
+
     time_jump += 0.015;
 
     gl.uniform1f(u_xPlataform, time);
 
-    // se o obj cair para baixo da tela ele é colocado para cima
+    // se o obstaculo cair para baixo da tela ele é colocado para cima
     if(obstacleDownY < -12){
         obstacleDownY = 7.0;
         gl.uniform1f(u_xObstacle,  Math.floor(Math.random() * 9) - 1);
@@ -145,10 +143,11 @@ function render() {
     // movimentação do teclado
     if(left){
         move -= 0.1;
+        gl.uniform1f(u_x, move);
     }else if(right){
         move += 0.1;
+        gl.uniform1f(u_x, move);
     }
-    gl.uniform1f(u_x, move);
 
     // cálculo da altura do pulo
     let y = -10.0 * fract(time_jump*3) * (fract(time_jump*3) - 1.0);
@@ -157,26 +156,56 @@ function render() {
         gl.uniform1f(u_y, y);
     }
 
+    //console.log(gl.getUniform(program, u_x))
     // cálculo para fazer a esfera cair caso sair da plataforma
-    if(move > time + 2.2 || outplataformY < 0){
-        outplataformY = outplataformY - 0.1;
-        gl.uniform1f(u_y, outplataformY);
-        //console.log('tá fora pela direita')
-    }else if(move < time -2.2 || outplataformY < 0){
-        //console.log('tá fora pela esq')
-        outplataformY = outplataformY - 0.1;
-        gl.uniform1f(u_y, outplataformY);
+    if(gl.getUniform(program, u_x) > (gl.getUniform(program, u_xPlataform) + 2.0) || gl.getUniform(program, u_y) < 0){
+        //console.log('caiu 1')
+        //console.log('1', '['+(gl.getUniform(program, u_xPlataform) - 2.2),gl.getUniform(program, u_x), (gl.getUniform(program, u_xPlataform)+2.2)+']', gl.getUniform(program, u_y))
+        gl.uniform1f(u_y, gl.getUniform(program, u_y) - 0.1);
+    }else if(gl.getUniform(program, u_x) < (gl.getUniform(program, u_xPlataform) -2.0) || gl.getUniform(program, u_y) < 0){
+        //console.log('caiu 2')
+        //console.log('2', '['+(gl.getUniform(program, u_xPlataform) - 2.2),gl.getUniform(program, u_x), (gl.getUniform(program, u_xPlataform)+2.2)+']', gl.getUniform(program, u_y))
+        gl.uniform1f(u_y, gl.getUniform(program, u_y) - 0.1);
     }
-    
-    if (y <= 0.1) {
+
+    // para fazer parar de pular
+    if (gl.getUniform(program, u_y) < 0.1) {
         jumping = false
     }
 
     gl.uniform1f(timeUniformLocation, time);
 
+    // se caiu p fora de tela reseta o contador e move o obj para 
+    //cima da plataforma
+    if (gl.getUniform(program, u_y) < -8) {
+        lostGame();
+    }
+
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
     requestAnimationFrame(render);
+}
+
+function checkHit(objX, objY){
+    //cálculos da hitbox do círculo
+    if( gl.getUniform(program, objY) > (gl.getUniform(program, u_y)-6.7) 
+    && gl.getUniform(program, objY) < (gl.getUniform(program, u_y)-6.5) 
+    && gl.getUniform(program, objX) > (gl.getUniform(program, u_x)-0.699)
+    && gl.getUniform(program, objX) < (gl.getUniform(program, u_x)+0.699))
+        return true;
+    return false;
+}
+
+function lostGame(){
+    left = false;
+    right = false;
+    jumping = false;
+    move = gl.getUniform(program, u_xPlataform);
+    gl.uniform1f(u_y, 0.0);    
+    sum = 0;
+    countElement.innerHTML = sum;
+    gl.uniform1f(u_x, gl.getUniform(program, u_xPlataform) );
+    console.log('resetou--------------------------------')
 }
 
 requestAnimationFrame(render);
