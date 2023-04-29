@@ -116,7 +116,8 @@ function render() {
     }
 
     if(ringMoveX >= 7){
-        ringMoveX = -2;
+        ringMoveX = -3;
+        gl.uniform1f(u_xRing,  ringMoveX );
         gl.uniform1f(u_yRing,  Math.floor(Math.random() * 6) );
     }
 
@@ -174,8 +175,7 @@ function render() {
         lostGame();
     }
 
-    
-    if( checkHit(u_xblueCube, u_yblueCube, 0.7) ){
+    if( checkHit(u_xblueCube, u_yblueCube, 0.7, 7.0) ){
         // hitbox - cubo azul
         // se acertou o OBJ ele volta para cima o Y e randomiza o X
         blueCubeDownY = 7.0;
@@ -187,13 +187,13 @@ function render() {
         blueCubeDownY -= 0.1; 
         gl.uniform1f(u_yblueCube, blueCubeDownY);
     }
-    
 
-    if( checkHit2(u_xRing, 0.7) ){
+    if( checkHit(u_xRing, u_yRing, 0.7) ){
         // hitbox - ring
         // se acertou o OBJ ele volta para o canto da tela o X e randomiza o Y
-        ringMoveX = -2.0;
-        gl.uniform1f(u_yRing,  Math.floor(Math.random() * 9) - 1);
+        ringMoveX = -3.0;
+        gl.uniform1f(u_xRing,  ringMoveX);
+        gl.uniform1f(u_yRing,  Math.floor(Math.random()));
         lostGame();
     }else{
         //console.log('x','[', (gl.getUniform(program, u_x)-0.999),gl.getUniform(program, u_x),(gl.getUniform(program, u_x)+0.999),']')
@@ -202,7 +202,7 @@ function render() {
         //console.log('ring Y' + gl.getUniform(program, u_yRing))
 
         // se não acertou o OBJ só desce ele para baixo
-        ringMoveX += 0.01; 
+        ringMoveX += 0.05; 
         gl.uniform1f(u_xRing, ringMoveX);
     }
 
@@ -211,28 +211,15 @@ function render() {
     requestAnimationFrame(render);
 }
 
-function checkHit(objX, objY, ray){
+function checkHit(objX, objY, ray, value = 0){
     //console.log((gl.getUniform(program, u_y)-6.0), gl.getUniform(program, objY),(gl.getUniform(program, u_y)-6.5))
     //cálculos da hitbox do círculo
     //console.log('x sphere:','[', (gl.getUniform(program, u_x)-ray),gl.getUniform(program, objX),(gl.getUniform(program, u_x)+ray),']')
     //console.log('y sphere:','[', (gl.getUniform(program, u_y)-ray),gl.getUniform(program, objY),(gl.getUniform(program, u_y)+ray),']')
 
     if( hitOBJ(gl.getUniform(program, objX), gl.getUniform(program, u_x), ray)
-    && hitOBJ(gl.getUniform(program, objY), (gl.getUniform(program, u_y) - 7.0), ray) ){
-        console.log('bingo!!!!')
-        return true;
-    }
-    return false;
-}
-
-function checkHit2(objX, ray){
-    //console.log((gl.getUniform(program, u_y)-6.0), gl.getUniform(program, objY),(gl.getUniform(program, u_y)-6.5))
-    //cálculos da hitbox do círculo
-    //console.log('x sphere:','[', (gl.getUniform(program, u_x)-ray),gl.getUniform(program, objX),(gl.getUniform(program, u_x)+ray),']')
-    //console.log('y sphere:','[', (gl.getUniform(program, u_y)-ray),gl.getUniform(program, objY),(gl.getUniform(program, u_y)+ray),']')
-
-    if( hitOBJ(gl.getUniform(program, objX), gl.getUniform(program, u_x), ray) ){
-        console.log('bingo!!!!')
+    && hitOBJ(gl.getUniform(program, objY), (gl.getUniform(program, u_y) - value), ray) ){
+        //console.log('bingo!!!!')
         return true;
     }
     return false;
