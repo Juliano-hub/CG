@@ -41,11 +41,11 @@
         uniform vec3 u_ringColor;
         uniform vec3 u_sphereColor;
         uniform vec3 u_cubeColor;
-        uniform vec3 u_obstacleColor;
+        uniform vec3 u_blueCubeColor;
         uniform float u_y;
         uniform float u_x;
-        uniform float u_xObstacle;
-        uniform float u_yObstacle;
+        uniform float u_xblueCube;
+        uniform float u_yblueCube;
         uniform float u_xPlataform;
         uniform float u_yRing;
         uniform float u_xRing;
@@ -92,7 +92,7 @@
 
             float mix_factor = dSphere / (dSphere + dCube);
 
-            float dObstacle = cubeSDF(p, vec3(u_xObstacle,u_yObstacle+7.0, 0.0), vec3(0.2, 0.2, 0.2));
+            float dblueCube = cubeSDF(p, vec3(u_xblueCube,u_yblueCube+7.0, 0.0), vec3(0.2, 0.2, 0.2));
             
             vec3 color = mix(
                 u_sphereColor,
@@ -100,15 +100,15 @@
                 mix_factor
             );
   
-            mix_factor = mix_factor / (dObstacle + mix_factor);
+            mix_factor = mix_factor / (dblueCube + mix_factor);
 
             color = mix(
                 color,
-                u_obstacleColor,
+                u_blueCubeColor,
                 mix_factor 
             );
 
-            return vec4(color, smoothMin(smoothMin(smoothMin(dCube, dSphere, 2.0), dObstacle, 8.0), dTorus , 2.0)); 
+            return vec4(color, smoothMin(smoothMin(smoothMin(dCube, dSphere, 2.0), dblueCube, 8.0), dTorus , 2.0)); 
         }
         
         vec3 raymarch(vec3 ro, vec3 rd) {

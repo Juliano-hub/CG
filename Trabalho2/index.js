@@ -43,18 +43,18 @@ gl.uniform2f(resolutionUniformLocation, canvas.width, canvas.height);
 
 const sphereColor = gl.getUniformLocation(program, 'u_sphereColor');
 const cubeColor = gl.getUniformLocation(program, 'u_cubeColor');
-const obstacleColor = gl.getUniformLocation(program, 'u_obstacleColor');
+const blueCubeColor = gl.getUniformLocation(program, 'u_blueCubeColor');
 
 gl.uniform3f(sphereColor, 1.0, 0.0, 0.0);
-gl.uniform3f(obstacleColor, 0.0, 1.0, 10);
+gl.uniform3f(blueCubeColor, 0.0, 1.0, 10);
 
 const u_y = gl.getUniformLocation(program, 'u_y');
 const u_x = gl.getUniformLocation(program, 'u_x');
 
 const u_xPlataform = gl.getUniformLocation(program, 'u_xPlataform');
 
-const u_yObstacle = gl.getUniformLocation(program, 'u_yObstacle');
-const u_xObstacle =  gl.getUniformLocation(program, 'u_xObstacle');
+const u_yblueCube = gl.getUniformLocation(program, 'u_yblueCube');
+const u_xblueCube =  gl.getUniformLocation(program, 'u_xblueCube');
 
 const u_yRing = gl.getUniformLocation(program, 'u_yRing');
 const u_xRing =  gl.getUniformLocation(program, 'u_xRing');
@@ -76,7 +76,7 @@ var move = 0;
 var vel = 0.2;
 var time = 0;
 var outplataformY = 0;
-var obstacleDownY = 7.0;
+var blueCubeDownY = 7.0;
 var ringMoveX = -2.0;
 var sum = 0;
 const countElement = document.querySelector(".count");
@@ -110,9 +110,9 @@ document.addEventListener("keyup", function (event) {
 
 function render() {
     // se o obstaculo cair para baixo da tela ele é colocado para cima
-    if(obstacleDownY < -12){
-        obstacleDownY = 7.0;
-        gl.uniform1f(u_xObstacle,  Math.floor(Math.random() * 9) - 1);
+    if(blueCubeDownY < -12){
+        blueCubeDownY = 7.0;
+        gl.uniform1f(u_xblueCube,  Math.floor(Math.random() * 9) - 1);
     }
 
     if(ringMoveX >= 7){
@@ -134,7 +134,7 @@ function render() {
       }
     }
 
-    gl.uniform3f(cubeColor, time, 1.0, 1.0); // azul
+    gl.uniform3f(cubeColor, time, 1.0, 1.0);
 
     time_jump += 0.015;
 
@@ -174,15 +174,15 @@ function render() {
         lostGame();
     }
 
-    if( checkHit(u_xObstacle, u_yObstacle) ){
+    if( checkHit(u_xblueCube, u_yblueCube) ){
         // se acertou o OBJ ele volta para cima o Y e randomiza o X
-        obstacleDownY = 7.0;
-        gl.uniform1f(u_xObstacle,  Math.floor(Math.random() * 9) - 1);
+        blueCubeDownY = 7.0;
+        gl.uniform1f(u_xblueCube,  Math.floor(Math.random() * 9) - 1);
         countElement.innerHTML = sum;
     }else{
         // se não acertou o OBJ só desce ele para baixo
-        obstacleDownY -= 0.1; 
-        gl.uniform1f(u_yObstacle, obstacleDownY);
+        blueCubeDownY -= 0.1; 
+        gl.uniform1f(u_yblueCube, blueCubeDownY);
     }
 
 
@@ -193,7 +193,7 @@ function render() {
         lostGame();
     }else{
         // se não acertou o OBJ só desce ele para baixo
-        ringMoveX += 0.1; 
+        ringMoveX += 0.05; 
         gl.uniform1f(u_xRing, ringMoveX);
     }
 
