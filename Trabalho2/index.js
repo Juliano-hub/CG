@@ -50,9 +50,14 @@ gl.uniform3f(obstacleColor, 0.0, 1.0, 10);
 
 const u_y = gl.getUniformLocation(program, 'u_y');
 const u_x = gl.getUniformLocation(program, 'u_x');
+
 const u_xPlataform = gl.getUniformLocation(program, 'u_xPlataform');
+
 const u_yObstacle = gl.getUniformLocation(program, 'u_yObstacle');
 const u_xObstacle =  gl.getUniformLocation(program, 'u_xObstacle');
+
+const u_yRing = gl.getUniformLocation(program, 'u_yRing');
+const u_xRing =  gl.getUniformLocation(program, 'u_xRing');
 
 function fract(x) {
     return x - Math.floor(x);
@@ -72,6 +77,7 @@ var vel = 0.2;
 var time = 0;
 var outplataformY = 0;
 var obstacleDownY = 7.0;
+var ringMoveX = -2.0;
 var sum = 0;
 const countElement = document.querySelector(".count");
 
@@ -109,6 +115,13 @@ function render() {
         gl.uniform1f(u_xObstacle,  Math.floor(Math.random() * 9) - 1);
     }
 
+    if(ringMoveX >= 7){
+        ringMoveX = -2;
+        gl.uniform1f(u_yRing,  Math.min(Math.floor(Math.random() * 6), 5));
+    }
+
+
+    // condições para a plataforma andar para os lados
     if (increment) {
         time += 0.01;
     if (time >= 7) {
@@ -172,6 +185,19 @@ function render() {
         gl.uniform1f(u_yObstacle, obstacleDownY);
     }
 
+
+    if( checkHit(u_xRing, u_yRing) ){
+        // se acertou o OBJ ele volta para o canto da tela o X e randomiza o Y
+        ringMoveX = -2.0;
+        gl.uniform1f(u_yRing,  Math.floor(Math.random() * 9) - 1);
+        lostGame();
+    }else{
+        // se não acertou o OBJ só desce ele para baixo
+        ringMoveX += 0.1; 
+        gl.uniform1f(u_xRing, ringMoveX);
+    }
+
+
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
     requestAnimationFrame(render);
@@ -183,7 +209,7 @@ function checkHit(objX, objY){
     //cálculos da hitbox do círculo
     //console.log('x','[', (gl.getUniform(program, u_x)-0.999),gl.getUniform(program, objX),(gl.getUniform(program, u_x)+0.999),']')
     //console.log('y','[', (gl.getUniform(program, u_y)-6.6999),gl.getUniform(program, objY),(gl.getUniform(program, u_y)+6.6999),']')
-    console.log(gl.getUniform(program, objX), gl.getUniform(program, objY))
+    //console.log(gl.getUniform(program, objX), gl.getUniform(program, objY))
 
     if( hitOBJ(gl.getUniform(program, objY), (gl.getUniform(program, u_y) - 7.0), 0.699)
     && hitOBJ(gl.getUniform(program, objX), gl.getUniform(program, u_x), 0.7) ){
@@ -197,8 +223,8 @@ function checkHit(objX, objY){
 function hitOBJ(limA, limB, ray) {
     //console.log('[',limA, limB, ray,']')
     //return Math.abs(limA - limB) <= ray;
-    console.log('-------------------------------')
-    console.log('[', limB-ray,limA, limB+ray,']')
+    //console.log('-------------------------------')
+    //console.log('[', limB-ray,limA, limB+ray,']')
     if(limA < limB+ray && limA > limB-ray) {
         return true;
     }
