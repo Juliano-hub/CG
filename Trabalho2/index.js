@@ -117,7 +117,7 @@ function render() {
 
     if(ringMoveX >= 7){
         ringMoveX = -2;
-        gl.uniform1f(u_yRing,  Math.min(Math.floor(Math.random() * 6), 5));
+        gl.uniform1f(u_yRing,  Math.floor(Math.random() * 6) );
     }
 
 
@@ -174,47 +174,65 @@ function render() {
         lostGame();
     }
 
-    if( checkHit(u_xblueCube, u_yblueCube) ){
+    
+    if( checkHit(u_xblueCube, u_yblueCube, 0.7) ){
+        // hitbox - cubo azul
         // se acertou o OBJ ele volta para cima o Y e randomiza o X
         blueCubeDownY = 7.0;
         gl.uniform1f(u_xblueCube,  Math.floor(Math.random() * 9) - 1);
+        sum += 1;
         countElement.innerHTML = sum;
     }else{
         // se não acertou o OBJ só desce ele para baixo
         blueCubeDownY -= 0.1; 
         gl.uniform1f(u_yblueCube, blueCubeDownY);
     }
+    
 
-
-    if( checkHit(u_xRing, u_yRing) ){
+    if( checkHit2(u_xRing, 0.7) ){
+        // hitbox - ring
         // se acertou o OBJ ele volta para o canto da tela o X e randomiza o Y
         ringMoveX = -2.0;
         gl.uniform1f(u_yRing,  Math.floor(Math.random() * 9) - 1);
         lostGame();
     }else{
+        //console.log('x','[', (gl.getUniform(program, u_x)-0.999),gl.getUniform(program, u_x),(gl.getUniform(program, u_x)+0.999),']')
+        //console.log('y','[', (gl.getUniform(program, u_y)-6.6999),gl.getUniform(program, u_y),(gl.getUniform(program, u_y)+6.6999),']')
+        //console.log('ring X' + gl.getUniform(program, u_xRing))
+        //console.log('ring Y' + gl.getUniform(program, u_yRing))
+
         // se não acertou o OBJ só desce ele para baixo
-        ringMoveX += 0.05; 
+        ringMoveX += 0.01; 
         gl.uniform1f(u_xRing, ringMoveX);
     }
-
 
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
     requestAnimationFrame(render);
 }
 
-function checkHit(objX, objY){
-
+function checkHit(objX, objY, ray){
     //console.log((gl.getUniform(program, u_y)-6.0), gl.getUniform(program, objY),(gl.getUniform(program, u_y)-6.5))
     //cálculos da hitbox do círculo
-    //console.log('x','[', (gl.getUniform(program, u_x)-0.999),gl.getUniform(program, objX),(gl.getUniform(program, u_x)+0.999),']')
-    //console.log('y','[', (gl.getUniform(program, u_y)-6.6999),gl.getUniform(program, objY),(gl.getUniform(program, u_y)+6.6999),']')
-    //console.log(gl.getUniform(program, objX), gl.getUniform(program, objY))
+    //console.log('x sphere:','[', (gl.getUniform(program, u_x)-ray),gl.getUniform(program, objX),(gl.getUniform(program, u_x)+ray),']')
+    //console.log('y sphere:','[', (gl.getUniform(program, u_y)-ray),gl.getUniform(program, objY),(gl.getUniform(program, u_y)+ray),']')
 
-    if( hitOBJ(gl.getUniform(program, objY), (gl.getUniform(program, u_y) - 7.0), 0.699)
-    && hitOBJ(gl.getUniform(program, objX), gl.getUniform(program, u_x), 0.7) ){
+    if( hitOBJ(gl.getUniform(program, objX), gl.getUniform(program, u_x), ray)
+    && hitOBJ(gl.getUniform(program, objY), (gl.getUniform(program, u_y) - 7.0), ray) ){
         console.log('bingo!!!!')
-        sum += 1;
+        return true;
+    }
+    return false;
+}
+
+function checkHit2(objX, ray){
+    //console.log((gl.getUniform(program, u_y)-6.0), gl.getUniform(program, objY),(gl.getUniform(program, u_y)-6.5))
+    //cálculos da hitbox do círculo
+    //console.log('x sphere:','[', (gl.getUniform(program, u_x)-ray),gl.getUniform(program, objX),(gl.getUniform(program, u_x)+ray),']')
+    //console.log('y sphere:','[', (gl.getUniform(program, u_y)-ray),gl.getUniform(program, objY),(gl.getUniform(program, u_y)+ray),']')
+
+    if( hitOBJ(gl.getUniform(program, objX), gl.getUniform(program, u_x), ray) ){
+        console.log('bingo!!!!')
         return true;
     }
     return false;
@@ -224,10 +242,11 @@ function hitOBJ(limA, limB, ray) {
     //console.log('[',limA, limB, ray,']')
     //return Math.abs(limA - limB) <= ray;
     //console.log('-------------------------------')
-    //console.log('[', limB-ray,limA, limB+ray,']')
-    if(limA < limB+ray && limA > limB-ray) {
+
+    if(limA <= limB+ray && limA >= limB-ray) {
         return true;
     }
+    return false;
 }
 
 function lostGame(){
