@@ -40,13 +40,13 @@ gl.vertexAttribPointer(positionAttributeLocation, 3, gl.FLOAT, false, 0, 0);
 const resolutionUniformLocation = gl.getUniformLocation(program, 'u_resolution');
 gl.uniform2f(resolutionUniformLocation, canvas.width, canvas.height);
 
-
 const sphereColor = gl.getUniformLocation(program, 'u_sphereColor');
 const cubeColor = gl.getUniformLocation(program, 'u_cubeColor');
 const blueCubeColor = gl.getUniformLocation(program, 'u_blueCubeColor');
 
 gl.uniform3f(sphereColor, 1.0, 0.0, 0.0);
 gl.uniform3f(blueCubeColor, 0.0, 1.0, 10);
+gl.uniform3f(cubeColor, 1.0, 1.0, 1.0);
 
 const u_y = gl.getUniformLocation(program, 'u_y');
 const u_x = gl.getUniformLocation(program, 'u_x');
@@ -135,7 +135,7 @@ function render() {
       }
     }
 
-    gl.uniform3f(cubeColor, time, 1.0, 1.0);
+    //gl.uniform3f(cubeColor, time, 1.0, 1.0);
 
     time_jump += 0.015;
 
@@ -193,7 +193,7 @@ function render() {
         // se acertou o OBJ ele volta para o canto da tela o X e randomiza o Y
         ringMoveX = -3.0;
         gl.uniform1f(u_xRing,  ringMoveX);
-        gl.uniform1f(u_yRing,  Math.floor(Math.random()));
+        gl.uniform1f(u_yRing, Math.floor(Math.random() * 6));
         lostGame();
     }else{
         //console.log('x','[', (gl.getUniform(program, u_x)-0.999),gl.getUniform(program, u_x),(gl.getUniform(program, u_x)+0.999),']')
