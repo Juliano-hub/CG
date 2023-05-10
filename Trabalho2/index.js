@@ -87,12 +87,12 @@ document.addEventListener("keydown", function (event) {
         if (!jumping)
             time_jump = 0
         jumping = true
-    }else if (event.key === 'a') {
+    }else if (event.key === 'a' || event.key === 'A') {
         if (!left)
             //move = 0
         left = true
         right = false
-    }else if (event.key === 'd') { 
+    }else if (event.key === 'd' || event.key === 'D') { 
         if (!right)
             //move = 0
         right = true
@@ -102,7 +102,7 @@ document.addEventListener("keydown", function (event) {
 
 document.addEventListener("keyup", function (event) {
     //console.log(event.key)
-    if (event.key === 'a' || event.key === 'd') {
+    if (event.key === 'A' || event.key === 'D' || event.key === 'a' || event.key === 'd') {
         right = false
         left = false
     }
