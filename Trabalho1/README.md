@@ -20,7 +20,7 @@ Deve ter controles para animar os objetos:
 
 - [dat.GUI](https://github.com/dataarts/dat.gui)
 
-## Rodar o projeto
+## Rodar o projeto no terminal
 
 Para rodar o trabalho entre na pasta do projeto e rode no terminal npx live-server. Ou extensão live server do VS Code.
 
